@@ -1,0 +1,6 @@
+framework module Pods_PedalNature {
+  umbrella header "Pods-PedalNature-umbrella.h"
+
+  export *
+  module * { export * }
+}
