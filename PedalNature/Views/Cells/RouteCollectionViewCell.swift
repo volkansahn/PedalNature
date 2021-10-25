@@ -8,7 +8,7 @@
 import SDWebImage
 import UIKit
 
-protocol RouteCollectionViewCell: AnyObject{
+protocol RouteCollectionViewCellDelegate: AnyObject{
     //Route Name and Tag Button
     func didTapTaggedPersonsButtonResponse(_ row : Int)
 }
