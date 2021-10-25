@@ -105,6 +105,7 @@ extension ProfileViewController: UICollectionViewDelegate, UICollectionViewDataS
         let modal = userRoutes[indexPath.row]
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: RouteCollectionViewCell.identifier, for: indexPath) as! RouteCollectionViewCell
         cell.configure(with: modal)
+		cell.delegate = self
         return cell
     }
     
@@ -196,3 +197,13 @@ extension ProfileViewController: ProfileTabsCollectionReusableViewDelegate{
     
     
 }
+
+extension ProfileViewController: RouteCollectionViewCellDelegate{
+    
+    // MARK: Route Tag Section
+    func didTapTaggedPersonsButtonResponse(_ row: Int) {
+        let vc = TaggedPersonsViewController()
+        vc.title = "Tags"
+        vc.routeModal = modals[row]
+        self.navigationController?.pushViewController(vc, animated: true)
+    }
