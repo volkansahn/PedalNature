@@ -71,7 +71,7 @@ class ProfileTabsCollectionReusableView: UICollectionReusableView {
     override func layoutSubviews() {
         super.layoutSubviews()
         
-        let size = height-(ProfileTapConstants.padding*2)
+        let size = height-(ProfileTapConstants.padding*4)
         let ownRoutesButtonX = ((width/2)-size)/2
         ownRoutesButton.frame = CGRect(x: ownRoutesButtonX,
                                        y: ProfileTapConstants.padding,
