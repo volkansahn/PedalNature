@@ -200,7 +200,7 @@ final class CityAndNameTableViewCell: UITableViewCell {
         
         containerView.frame = CGRect(x: contentView.width-20.0-4*tagPhotoSize,
                                      y: homeImageView.bottom - tagPhotoSize-20,
-                                     width: 4*tagPhotoSize+20,
+                                     width: 4*tagPhotoSize,
                                      height: tagPhotoSize+10)
         containerView.layer.cornerRadius = 10
         
