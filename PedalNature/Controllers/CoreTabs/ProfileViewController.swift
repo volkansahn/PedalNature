@@ -102,10 +102,9 @@ extension ProfileViewController: UICollectionViewDelegate, UICollectionViewDataS
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        //let modal = userRoutes[indexPath.row]
+        let modal = userRoutes[indexPath.row]
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: RouteCollectionViewCell.identifier, for: indexPath) as! RouteCollectionViewCell
-        //cell.configure(with: modal)
-        cell.configure(debug: "hello")
+        cell.configure(with: modal)
         return cell
     }
     
