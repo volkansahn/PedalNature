@@ -13,45 +13,149 @@ import CoreLocation
 /// Reached from Activity Record View
 final class CreatePostViewController: UIViewController {
 
-    private var createRouteTableView : UITableView = {
+	private var createRouteTableView : UITableView = {
         let tableView = UITableView()
         tableView.register(CreateRouteGraphsTableViewCell.self, forCellReuseIdentifier: CreateRouteGraphsTableViewCell.identifier)
-        tableView.register(CreateRouteInfoTableViewCell.self, forCellReuseIdentifier: CreateRouteInfoTableViewCell.identifier)
-        tableView.register(CreateRouteTagsTableViewCell.self, forCellReuseIdentifier: CreateRouteTagsTableViewCell.identifier)
-        tableView.register(CreateRouteImagesTableViewCell.self, forCellReuseIdentifier: CreateRouteImagesTableViewCell.identifier)
-        tableView.register(ElevationGraphTableViewCell.self, forCellReuseIdentifier: ElevationGraphTableViewCell.identifier)
-        tableView.register(SpeedGraphTableViewCell.self, forCellReuseIdentifier: SpeedGraphTableViewCell.identifier)
-        tableView.register(CreatePostActionTableViewCell.self, forCellReuseIdentifier: CreatePostActionTableViewCell.identifier)
         tableView.separatorStyle = .none
         return tableView
     }()
+	
+     private let tagsLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Tag Person"
+        label.textColor = .label
+        label.font = .systemFont(ofSize: 17, weight: .bold)
+        return label
+    }()
     
+    private let goToTagSearchButton: UIButton = {
+        let button = UIButton()
+        button.setBackgroundImage(UIImage(systemName: "chevron.right"), for: .normal)
+        button.tintColor = .label
+        return button
+    }()
+	
+	private let imagesLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Route Image"
+        label.textColor = .label
+        label.font = .systemFont(ofSize: 17, weight: .bold)
+        return label
+    }()
+    
+    private let goToRouteImageButton: UIButton = {
+        let button = UIButton()
+        button.setBackgroundImage(UIImage(systemName: "chevron.right"), for: .normal)
+        button.tintColor = .label
+        return button
+    }()
+	
+	private let infoLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Route Info"
+        label.textColor = .label
+        label.font = .systemFont(ofSize: 17, weight: .bold)
+        return label
+    }()
+    
+    private let goToRouteInfoButton: UIButton = {
+        let button = UIButton()
+        button.setBackgroundImage(UIImage(systemName: "chevron.right"), for: .normal)
+        button.tintColor = .label
+        return button
+    }()
+	
+	private let saveButton : UIButton = {
+        let button = UIButton()
+        button.setTitle("Save Route", for: .normal)
+        button.layer.masksToBounds = true
+        button.layer.cornerRadius = Constants.cornerRadius
+        button.backgroundColor = UIColor(rgb: 0x5da973)
+        button.setTitleColor(.white, for: .normal)
+        return button
+    }()
+	
     public var locationCoordinates = [CLLocationCoordinate2D]()
     
     public var locations = [CLLocation]()
     
     public var images = [RouteImage]()
-
-    public var duration : String?
-    
-    public var distance : String?
-    
-    public var modal : UserRoute?
-    
-    private var maxSpeed = 0.0
-    private var maxElevation = 0.0
+	
+	public var duration : String?
+	
+    public var distance : String?  
+	
+	public var maxSpeed = 0.0
+	
+    public var maxElevation = 0.0
     
     override func viewDidLoad() {
         super.viewDidLoad()
         createMockModals()
-        view.backgroundColor = .systemBackground
-        view.addSubview(createRouteTableView)
-        createRouteTableView.delegate = self
-        createRouteTableView.dataSource = self
+		configureRouteInfo()
+		
+		//Route Graph
+		view.addSubview(createRouteTableView)
+		// Tag
+        view.addSubview(tagsLabel)
+        view.addSubview(goToTagSearchButton)
+        goToTagSearchButton.addTarget(self, action: #selector(didTapTagView), for: .touchUpInside)
+		
+		// Image
+        view.addSubview(imagesLabel)
+        view.addSubview(goToRouteImageButton)
+        goToTagSearchButton.addTarget(self, action: #selector(didTapImagesView), for: .touchUpInside)
+		
+		// Info
+        view.addSubview(infoLabel)
+        view.addSubview(goToRouteInfoButton)
+        goToTagSearchButton.addTarget(self, action: #selector(didTapRouteInfoView), for: .touchUpInside)
+		
+		//Save Button
+		view.addSubview(saveButton)
+		saveButton.addTarget(self, action: #selector(saveRoutePressed), for: .touchUpInside)
+		
+		//Cancel Route
         self.navigationItem.setHidesBackButton(true, animated: true)
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Cancel", style: .plain, target: self, action: #selector(cancelTapped))
         configureRouteInfo()
         addAnnotations()
+    }
+	//Tag
+	@objc func didTapTagView(){
+        let vc = TagPeopleViewController()
+        vc.title = "Tag People"
+        self.navigationController?.pushViewController(vc, animated: true)
+    }
+	//Image
+	@objc func goToRouteImageButton(){
+        let vc = RouteImageViewController()
+        vc.title = "Route Images"
+		vc.images = images
+		vc.locationCoordinates = locationCoordinates
+		vc.locations = locations
+        self.navigationController?.pushViewController(vc, animated: true)
+    }
+	//Info
+	@objc func goToRouteInfoButton(){
+        let vc = RouteInfoViewController()
+        vc.title = "Route Info"
+		vc.duration = duration
+		vc.distance : String?  
+		vc.maxSpeed = 0.0
+		vc.maxElevation = 0.0
+		vc.locations = locations
+        self.navigationController?.pushViewController(vc, animated: true)
+    }
+	
+	//Save Route
+	@objc func saveRoutePressed(){
+        print("Save Pressed")
+    }
+	
+	//Cancel Save
+	@objc func cancelTapped(){
+        print("Cancel Pressed")
     }
     
     override func viewDidLayoutSubviews() {
@@ -61,19 +165,42 @@ final class CreatePostViewController: UIViewController {
         createRouteTableView.frame = CGRect(x: 0,
                                             y: view.safeAreaInsets.top,
                                             width: view.width,
-                                            height: bottomHeight)
+                                            height: view.width)
+		let goToViewHeights = 50									
+		tagsLabel.frame = CGRect(x: 5,
+                                 y: createRouteTableView.bottom + 10,
+                                 width: goToViewHeights + 50,
+                                 height: goToViewHeights)
         
-    }
-    
-    private func addAnnotations(){
-//        let coords = [locationCoordinates.first, locationCoordinates.last]
-//        let titles = ["Start", "End"]
-//        for i in coords.indices {
-//            let annotation = MKPointAnnotation()
-//            annotation.coordinate = coords[i]!
-//            annotation.title = titles[i]
-//            mapView.addAnnotation(annotation)
-//        }
+        goToTagSearchButton.frame = CGRect(x: view.width-50,
+                                           y: createRouteTableView.bottom + 15,
+                                           width: goToViewHeights-30,
+                                           height: goToViewHeights-30)
+		imagesLabel.frame = CGRect(x: 5,
+                                 y: tagsLabel.bottom + 10,
+                                 width: goToViewHeights + 50,
+                                 height: goToViewHeights)
+        
+        goToRouteImageButton.frame = CGRect(x: view.width-50,
+                                           y: goToTagSearchButton.bottom + 15,
+                                           width: goToViewHeights-30,
+                                           height: goToViewHeights-30)
+		infoLabel.frame = CGRect(x: 5,
+                                 y: imagesLabel.bottom + 10,
+                                 width: goToViewHeights + 50,
+                                 height: goToViewHeights)
+        
+        goToRouteInfoButton.frame = CGRect(x: view.width-50,
+                                           y: goToRouteImageButton.bottom + 15,
+                                           width: goToViewHeights-30,
+                                           height: goToViewHeights-30)
+										   
+		let buttonWidth = 100
+		saveButton.frame = CGRect(x: view.width/2 - buttonWidth/2,
+                                       y: infoLabel.bottom,
+                                       width: buttonWidth,
+                                       height: 50)
+        
     }
     
     private func configureRouteInfo(){
@@ -88,10 +215,6 @@ final class CreatePostViewController: UIViewController {
 
             }
         }
-    }
-    
-    @objc func cancelTapped(){
-        
     }
     
     private func createMockModals(){
@@ -113,72 +236,21 @@ final class CreatePostViewController: UIViewController {
 
 extension CreatePostViewController: UITableViewDelegate, UITableViewDataSource{
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 7
+        return 1
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        switch indexPath.row{
-        case 0:
-            let cell = tableView.dequeueReusableCell(withIdentifier: CreateRouteGraphsTableViewCell.identifier) as! CreateRouteGraphsTableViewCell
-            cell.configure(with: locationCoordinates, locations: locations, images : images)
-            return cell
-        case 1:
-            let cell = tableView.dequeueReusableCell(withIdentifier: CreateRouteInfoTableViewCell.identifier) as! CreateRouteInfoTableViewCell
-            cell.configure(duration: duration!, distance: distance!, maxElevation: String(maxElevation), maxSpeed: String(maxSpeed))
-            return cell
-        case 2:
-            let cell = tableView.dequeueReusableCell(withIdentifier: CreateRouteTagsTableViewCell.identifier) as! CreateRouteTagsTableViewCell
-            cell.delegate = self
-            return cell
-        case 3:
-            let cell = tableView.dequeueReusableCell(withIdentifier: CreateRouteImagesTableViewCell.identifier) as! CreateRouteImagesTableViewCell
-            cell.configure(with: images)
-            return cell
-        case 4:
-            let cell = tableView.dequeueReusableCell(withIdentifier: ElevationGraphTableViewCell.identifier) as! ElevationGraphTableViewCell
-            cell.configure(with: locations)
-            return cell
-        case 5:
-            let cell = tableView.dequeueReusableCell(withIdentifier: SpeedGraphTableViewCell.identifier) as! SpeedGraphTableViewCell
-            cell.configure(with: locations)
-            return cell
-        case 6:
-            let cell = tableView.dequeueReusableCell(withIdentifier: CreatePostActionTableViewCell.identifier) as! CreatePostActionTableViewCell
-            return cell
-        default: fatalError("Shouldn't be here")
-        }
+        let cell = tableView.dequeueReusableCell(withIdentifier: CreateRouteGraphsTableViewCell.identifier) as! CreateRouteGraphsTableViewCell
+        cell.configure(with: locationCoordinates, locations: locations, images : images)
+        return cell
+        
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        switch indexPath.row{
-        case 0:
-            return view.width
-        case 1:
-            return 100
-        case 2:
-            return 50
-        case 3:
-            return view.width
-        case 4:
-            return view.width
-        case 5:
-            return view.width
-        case 6:
-            return 50
-        default: fatalError("Shouldn't be here")
-        }
+        
+        return view.width
+        
     }
-    
-}
-
-extension CreatePostViewController : CreateRouteTagsTableViewCellDelegate{
-    func openTagViewPressed() {
-        let vc = TagPeopleViewController()
-        vc.title = "Tag People"
-        self.navigationController?.pushViewController(vc, animated: true)
-
-    }
-    
     
 }
