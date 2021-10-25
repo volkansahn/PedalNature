@@ -12,9 +12,9 @@ import MapKit
 import Charts
 
 final class CreateRouteGraphsTableViewCell: UITableViewCell {
-
+    
     static let identifier = "CreateRouteGraphsTableViewCell"
-
+    
     private let mapView = MKMapView()
     
     private var maxEleLocationCoordinate : CLLocationCoordinate2D?
@@ -22,7 +22,7 @@ final class CreateRouteGraphsTableViewCell: UITableViewCell {
     
     private var maxSpeed = 0.0
     private var maxElevation = 0.0
-
+    
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?){
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         mapView.delegate = self
@@ -49,7 +49,7 @@ final class CreateRouteGraphsTableViewCell: UITableViewCell {
         let endLocation = locations.last!
         let delta: CLLocationDistance = startLocation.distance(from: endLocation)
         let regionRadius : CLLocationDistance = delta + 500
-
+        
         let coordinateRegion = MKCoordinateRegion(
             center: midLocation,
             latitudinalMeters: regionRadius,
@@ -58,9 +58,9 @@ final class CreateRouteGraphsTableViewCell: UITableViewCell {
         mapView.setRegion(coordinateRegion, animated: true)
         findMaxEleAndSpeedCoordinates(locations : syncedLocations)
         addAnnotations(locationCoordinates : coordinates, images : images)
-
+        
         return
-       
+        
     }
     
     private func addAnnotations(locationCoordinates: [CLLocationCoordinate2D], images : [RouteImage]){
@@ -88,7 +88,7 @@ final class CreateRouteGraphsTableViewCell: UITableViewCell {
             }
         }
         
-
+        
     }
     
     private func findMaxEleAndSpeedCoordinates(locations : [CLLocation]){
@@ -107,7 +107,7 @@ final class CreateRouteGraphsTableViewCell: UITableViewCell {
 
 extension CreateRouteGraphsTableViewCell: MKMapViewDelegate{
     func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
-
+        
         if let routePolyline = overlay as? MKPolyline {
             let renderer = MKPolylineRenderer(polyline: routePolyline)
             renderer.strokeColor = UIColor.systemBlue.withAlphaComponent(0.9)
@@ -120,24 +120,30 @@ extension CreateRouteGraphsTableViewCell: MKMapViewDelegate{
     
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
         let annotationView = MKMarkerAnnotationView(annotation: annotation, reuseIdentifier: "MyMarker")
+        annotationView.titleVisibility = .hidden
         switch annotation.title!! {
-            case "Start":
-                annotationView.markerTintColor = UIColor(rgb: 0xe7e7e7)
-                annotationView.glyphImage = UIImage(named: "Start")
-            case "End":
-                annotationView.markerTintColor = UIColor(rgb: 0xe7e7e7)
-                annotationView.glyphImage = UIImage(named: "End")
-            case "MaxElevation":
-                annotationView.markerTintColor = UIColor(rgb: 0xe7e7e7)
-                annotationView.glyphImage = UIImage(named: "MaxElevation")
-            case "MaxSpeed":
-                annotationView.markerTintColor = UIColor(rgb: 0xe7e7e7)
-                annotationView.glyphImage = UIImage(named: "MaxSpeed")
-            case "Image":
-                annotationView.markerTintColor = UIColor(rgb: 0xe7e7e7)
-                annotationView.glyphImage = UIImage(named: "Image")
-            default:
-                annotationView.markerTintColor = UIColor.blue
+        case "Start":
+            annotationView.markerTintColor = UIColor(rgb: 0xe7e7e7)
+            annotationView.glyphImage = UIImage(named: "Start")
+            annotationView.glyphImage!.withRenderingMode(.alwaysOriginal)
+        case "End":
+            annotationView.markerTintColor = UIColor(rgb: 0xe7e7e7)
+            annotationView.glyphImage = UIImage(named: "End")
+            annotationView.glyphImage!.withRenderingMode(.alwaysOriginal)
+        case "MaxElevation":
+            annotationView.markerTintColor = UIColor(rgb: 0xe7e7e7)
+            annotationView.glyphImage = UIImage(named: "MaxElevation")
+            annotationView.glyphImage!.withRenderingMode(.alwaysOriginal)
+        case "MaxSpeed":
+            annotationView.markerTintColor = UIColor(rgb: 0xe7e7e7)
+            annotationView.glyphImage = UIImage(named: "MaxSpeed")
+            annotationView.glyphImage!.withRenderingMode(.alwaysOriginal)
+        case "Image":
+            annotationView.markerTintColor = UIColor(rgb: 0xe7e7e7)
+            annotationView.glyphImage = UIImage(named: "Image")
+            annotationView.glyphImage!.withRenderingMode(.alwaysOriginal)
+        default:
+            annotationView.markerTintColor = UIColor.blue
         }
         return annotationView
     }

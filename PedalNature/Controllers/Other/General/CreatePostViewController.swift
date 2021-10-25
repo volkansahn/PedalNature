@@ -129,6 +129,7 @@ extension CreatePostViewController: UITableViewDelegate, UITableViewDataSource{
             return cell
         case 2:
             let cell = tableView.dequeueReusableCell(withIdentifier: CreateRouteTagsTableViewCell.identifier) as! CreateRouteTagsTableViewCell
+            cell.delegate = self
             return cell
         case 3:
             let cell = tableView.dequeueReusableCell(withIdentifier: CreateRouteImagesTableViewCell.identifier) as! CreateRouteImagesTableViewCell
@@ -168,5 +169,16 @@ extension CreatePostViewController: UITableViewDelegate, UITableViewDataSource{
         default: fatalError("Shouldn't be here")
         }
     }
+    
+}
+
+extension CreatePostViewController : CreateRouteTagsTableViewCellDelegate{
+    func openTagViewPressed() {
+        let vc = TagPeopleViewController()
+        vc.title = "Tag People"
+        self.navigationController?.pushViewController(vc, animated: true)
+
+    }
+    
     
 }

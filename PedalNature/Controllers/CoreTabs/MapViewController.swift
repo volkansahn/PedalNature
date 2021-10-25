@@ -27,6 +27,7 @@ final class MapViewController: UIViewController {
     private var images = [RouteImage]()
     public var duration : String?
     public var distance : String?
+    public var isPauseDone = false
     
     private let cameraButton : UIButton = {
         let button = UIButton()
@@ -127,7 +128,7 @@ final class MapViewController: UIViewController {
     private var pauseLabel : UILabel = {
         let label = UILabel()
         label.text = "PAUSED"
-        label.font = .systemFont(ofSize: 17, weight: .bold)
+        label.font = .systemFont(ofSize: 19, weight: .bold)
         label.textColor = .systemRed
         label.textAlignment = .center
         label.layer.borderWidth = 1.0
@@ -233,6 +234,8 @@ final class MapViewController: UIViewController {
         vc.allowsEditing = true
         vc.delegate = self
         present(vc, animated: true)
+        
+        
     }
     
     @objc func holdDown(){
@@ -272,17 +275,21 @@ final class MapViewController: UIViewController {
             self.pauseLabel.fadeIn()
             self.endButton.fadeIn()
             self.playButton.fadeIn()
-            self.endButton.center.x = CGFloat(self.stopButtonSize) + self.stopButtonSize/2
-            self.playButton.center.x = (self.view.width) - 2*self.stopButtonSize + self.stopButtonSize/2
+            self.endButton.center.x = self.stopButtonSize/2 + 20
+            self.playButton.center.x = self.view.width-self.stopButtonSize/2-20
             
         }, completion: { finished in
             if finished{
                 self.goButton.fadeIn()
+                self.pauseLabel.isHidden = false
                 self.goButton.isHidden = true
                 self.pauseButton.isHidden = true
                 self.buttonContainerView.isHidden = false
                 self.tabBarController?.tabBar.isHidden = true
                 self.locationManager.stopUpdatingLocation()
+                self.endButton.center.x = self.stopButtonSize/2 + 20
+                self.playButton.center.x = self.view.width-self.stopButtonSize/2-20
+                
             }
             
         })
@@ -436,17 +443,18 @@ final class MapViewController: UIViewController {
                                 height: goButtonSize)
         
         goButton.layer.cornerRadius = goButtonSize/2
-        
-        pauseLabel.frame = CGRect(x: (view.width/2) - CGFloat(goButtonSize/2),
-                                  y: buttonContainerView.top-(0.75*stopButtonSize/2),
-                                  width: goButtonSize,
-                                  height: goButtonSize/2)
-        pauseLabel.layer.cornerRadius = 3.0
+    
         
         buttonContainerView.frame = CGRect(x: 0,
                                            y: view.height - 1.5*goButtonSize,
                                            width: view.width,
                                            height: 1.5*goButtonSize)
+        
+        pauseLabel.frame = CGRect(x: (view.width/2) - CGFloat(goButtonSize/2),
+                                  y: buttonContainerView.top+(stopButtonSize/2),
+                                  width: goButtonSize,
+                                  height: goButtonSize/2)
+        pauseLabel.layer.cornerRadius = 3.0
         
         pauseButton.frame = CGRect(x: (view.width/2) - CGFloat(stopButtonSize/2),
                                    y: buttonContainerView.top+(0.25*stopButtonSize),
@@ -564,13 +572,25 @@ extension MapViewController: CLLocationManagerDelegate{
 }
 
 extension MapViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate{
+    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+        picker.dismiss(animated:true, completion: {
+            self.endButton.center.x = self.stopButtonSize/2 + 20
+            self.playButton.center.x = self.view.width-self.stopButtonSize/2-20
+        })
+
+    }
+    
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         
         guard let image = info[.editedImage] as? UIImage else {
             print("No image found")
             return
         }
+        
         picker.dismiss(animated:true, completion: {
+            self.endButton.center.x = self.stopButtonSize/2 + 20
+            self.playButton.center.x = self.view.width-self.stopButtonSize/2-20
+
             // Create Image Array
             let routeImage = RouteImage(image: image, coordinate: self.locationCoordinateArray.last!)
             self.images.append(routeImage)
@@ -580,7 +600,6 @@ extension MapViewController: UIImagePickerControllerDelegate, UINavigationContro
                 
             }))
             actionSheet.addAction(UIAlertAction(title: "No", style: .destructive, handler: { _ in         picker.dismiss(animated: true)
-                self.playPressed()
             }))
             self.present(actionSheet,animated: true)
         })
@@ -597,7 +616,6 @@ extension MapViewController: UIImagePickerControllerDelegate, UINavigationContro
             ac.addAction(UIAlertAction(title: "OK", style: .default))
             present(ac, animated: true)
         }
-        playPressed()
     }
 }
 

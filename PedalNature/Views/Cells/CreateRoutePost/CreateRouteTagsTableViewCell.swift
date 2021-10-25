@@ -7,9 +7,15 @@
 
 import UIKit
 
+protocol CreateRouteTagsTableViewCellDelegate : AnyObject{
+    func openTagViewPressed()
+}
+
 final class CreateRouteTagsTableViewCell: UITableViewCell {
     
     static let identifier = "CreateRouteTagsTableViewCell"
+    
+    public var delegate : CreateRouteTagsTableViewCellDelegate?
     
     private let tagsLabel: UILabel = {
         let label = UILabel()
@@ -44,6 +50,7 @@ final class CreateRouteTagsTableViewCell: UITableViewCell {
         tagSearchBar.delegate = self
         contentView.addSubview(tagsLabel)
         contentView.addSubview(goToTagSearchButton)
+        goToTagSearchButton.addTarget(self, action: #selector(didTapTagView), for: .touchUpInside)
 
     }
     
@@ -62,6 +69,10 @@ final class CreateRouteTagsTableViewCell: UITableViewCell {
                                            y: 15,
                                            width: contentView.height-30,
                                            height: contentView.height-30)
+    }
+    
+    @objc func didTapTagView(){
+        delegate?.openTagViewPressed()
     }
 }
 

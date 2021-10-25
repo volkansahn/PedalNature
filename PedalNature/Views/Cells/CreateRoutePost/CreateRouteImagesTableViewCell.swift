@@ -10,78 +10,105 @@ import UIKit
 final class CreateRouteImagesTableViewCell: UITableViewCell {
     //identifier
     static let identifier = "CreateRouteImagesTableViewCell"
+    
+    private let headerLabel : UILabel = {
+        let label = UILabel()
+        
+        return label
+    }()
+    private var collectionView: UICollectionView?
+    private let pageControl = UIPageControl()
     private var imagelist = [RouteImage]()
-    var scrollView = UIScrollView()
-
-    var pageControl : UIPageControl = UIPageControl(frame:CGRect(x: 50, y: 300, width: 200, height: 50))
-
-    var yPosition:CGFloat = 0
-    var scrollViewContentSize:CGFloat=0;
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?){
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-        contentView.backgroundColor = .systemYellow
         
-        configurePageControl()
-
-        scrollView.delegate = self
-        contentView.addSubview(scrollView)
+        // CollectionView Layout
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .horizontal
+        layout.sectionInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
+      
+        collectionView = UICollectionView(frame: .zero,
+                                          collectionViewLayout: layout)
         
-        self.scrollView.contentSize = CGSize(width: self.scrollView.frame.size.width * CGFloat(imagelist.count), height: self.scrollView.frame.size.height)
-        pageControl.addTarget(self, action: #selector(changePage), for: .valueChanged)
-    }
-    
-    func configurePageControl() {
-        // The total number of pages that are available is based on how many available colors we have.
-        self.pageControl.numberOfPages = imagelist.count
-        self.pageControl.currentPage = 0
-        self.pageControl.tintColor = UIColor.red
-        self.pageControl.pageIndicatorTintColor = UIColor.black
-        self.pageControl.currentPageIndicatorTintColor = UIColor.green
+        // CollectionView Cell
+        collectionView?.register(HorizontalImageSliderCollectionViewCell.self, forCellWithReuseIdentifier: HorizontalImageSliderCollectionViewCell.identifier)
+        
+        collectionView?.delegate = self
+        collectionView?.dataSource = self
+        guard let collectionView = collectionView else {
+            return
+        }
+        
+        pageControl.currentPageIndicatorTintColor = UIColor(rgb: 0x5da973)
+        
+        contentView.addSubview(collectionView)
         contentView.addSubview(pageControl)
 
-    }
-
-    // MARK : TO CHANGE WHILE CLICKING ON PAGE CONTROL
-    @objc func changePage(sender: AnyObject) -> () {
-        let x = CGFloat(pageControl.currentPage) * scrollView.frame.size.width
-        scrollView.setContentOffset(CGPoint(x: x,y :0), animated: true)
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        let witdh = scrollView.frame.width - (scrollView.contentInset.left*2)
+        let index = scrollView.contentOffset.x / witdh
+        let roundedIndex = round(index)
+        self.pageControl.currentPage = Int(roundedIndex)
+    }
+    
+    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+
+        pageControl.currentPage = Int(scrollView.contentOffset.x) / Int(scrollView.frame.width)
+    }
+
+    func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
+
+        pageControl.currentPage = Int(scrollView.contentOffset.x) / Int(scrollView.frame.width)
+    }
+    
     override func layoutSubviews() {
         super.layoutSubviews()
-        scrollView.frame = contentView.bounds
+        let pageControlHeight : CGFloat = 50.0
+
+        collectionView?.frame = CGRect(x: 0,
+                                       y: 0,
+                                       width: contentView.width,
+                                       height: contentView.height-pageControlHeight)
+        
+        pageControl.frame = CGRect(x: 0,
+                                   y: collectionView!.bottom,
+                                   width: contentView.width,
+                                   height: pageControlHeight)
     }
     
     public func configure(with images: [RouteImage]){
         imagelist = images
-        for  i in stride(from: 0, to: imagelist.count, by: 1) {
-            var frame = CGRect.zero
-            frame.origin.x = self.scrollView.frame.size.width * CGFloat(i)
-            frame.origin.y = 0
-            frame.size = self.scrollView.frame.size
-            self.scrollView.isPagingEnabled = true
-
-            let myImage:UIImage = imagelist[i].image
-            let myImageView:UIImageView = UIImageView()
-            myImageView.image = myImage
-            myImageView.contentMode = .scaleAspectFill
-            myImageView.frame = frame
-
-            scrollView.addSubview(myImageView)
-        }
+        pageControl.numberOfPages = imagelist.count
+        pageControl.isHidden = !(imagelist.count > 1)
     }
 
 }
 
-extension CreateRouteImagesTableViewCell : UIScrollViewDelegate{
-    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
-        let pageNumber = round(scrollView.contentOffset.x / scrollView.frame.size.width)
-        pageControl.currentPage = Int(pageNumber)
-    }
+extension CreateRouteImagesTableViewCell: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout{
+    
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return imagelist.count
 
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        //let modal = userRoutes[indexPath.row]
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: HorizontalImageSliderCollectionViewCell.identifier, for: indexPath) as! HorizontalImageSliderCollectionViewCell
+        //cell.configure(with: modal)
+        cell.configure(with: imagelist[indexPath.row], imagelist: imagelist)
+        return cell
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        collectionView.isPagingEnabled = true
+        collectionView.showsHorizontalScrollIndicator = false
+        return CGSize(width: contentView.width, height: contentView.height)
+    }
 }
