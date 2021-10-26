@@ -9,6 +9,9 @@
 /* Begin PBXBuildFile section */
 		3A94037F420C9224ABCA3250 /* Pods_PedalNature.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 20D11D978C1A393556073C79 /* Pods_PedalNature.framework */; };
 		E72E44F72725936500336734 /* HorizontalImageSliderCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E72E44F62725936500336734 /* HorizontalImageSliderCollectionViewCell.swift */; };
+		E72E44FA2726F55A00336734 /* RouteImageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E72E44F82726F55A00336734 /* RouteImageViewController.swift */; };
+		E72E44FB2726F55A00336734 /* RouteInfoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E72E44F92726F55A00336734 /* RouteInfoViewController.swift */; };
+		E72E44FD2726F59100336734 /* RouteImagesTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E72E44FC2726F59100336734 /* RouteImagesTableViewCell.swift */; };
 		E76B7CF52715B5EE00A8513F /* CreateRouteInfoTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E76B7CF42715B5EE00A8513F /* CreateRouteInfoTableViewCell.swift */; };
 		E76B7CF72715B61D00A8513F /* CreateRouteTagsTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E76B7CF62715B61D00A8513F /* CreateRouteTagsTableViewCell.swift */; };
 		E76B7CF92715B65C00A8513F /* CreateRouteImagesTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E76B7CF82715B65C00A8513F /* CreateRouteImagesTableViewCell.swift */; };
@@ -78,6 +81,9 @@
 		20D11D978C1A393556073C79 /* Pods_PedalNature.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_PedalNature.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		3BF98E71CA85411113B226A4 /* Pods-PedalNature.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PedalNature.debug.xcconfig"; path = "Target Support Files/Pods-PedalNature/Pods-PedalNature.debug.xcconfig"; sourceTree = "<group>"; };
 		E72E44F62725936500336734 /* HorizontalImageSliderCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HorizontalImageSliderCollectionViewCell.swift; sourceTree = "<group>"; };
+		E72E44F82726F55A00336734 /* RouteImageViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RouteImageViewController.swift; sourceTree = "<group>"; };
+		E72E44F92726F55A00336734 /* RouteInfoViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RouteInfoViewController.swift; sourceTree = "<group>"; };
+		E72E44FC2726F59100336734 /* RouteImagesTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RouteImagesTableViewCell.swift; sourceTree = "<group>"; };
 		E76B7CF42715B5EE00A8513F /* CreateRouteInfoTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateRouteInfoTableViewCell.swift; sourceTree = "<group>"; };
 		E76B7CF62715B61D00A8513F /* CreateRouteTagsTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateRouteTagsTableViewCell.swift; sourceTree = "<group>"; };
 		E76B7CF82715B65C00A8513F /* CreateRouteImagesTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateRouteImagesTableViewCell.swift; sourceTree = "<group>"; };
@@ -178,6 +184,7 @@
 			children = (
 				E76B7CF42715B5EE00A8513F /* CreateRouteInfoTableViewCell.swift */,
 				E76B7CF62715B61D00A8513F /* CreateRouteTagsTableViewCell.swift */,
+				E72E44FC2726F59100336734 /* RouteImagesTableViewCell.swift */,
 				E76B7CF82715B65C00A8513F /* CreateRouteImagesTableViewCell.swift */,
 				E76B7CFA2715B68A00A8513F /* CreateRouteGraphsTableViewCell.swift */,
 				E76B7CFC2715B7CD00A8513F /* CreatePostActionTableViewCell.swift */,
@@ -194,6 +201,8 @@
 				E791280526FDF5040058837F /* EditProfileViewController.swift */,
 				E791280726FDF53F0058837F /* SettingsViewController.swift */,
 				E791280B26FDF6A10058837F /* AccountViewController.swift */,
+				E72E44F82726F55A00336734 /* RouteImageViewController.swift */,
+				E72E44F92726F55A00336734 /* RouteInfoViewController.swift */,
 				E791280F26FDF7520058837F /* MetricsViewController.swift */,
 				E791281126FDF9E10058837F /* SearchAndListUsersViewController.swift */,
 				E791281326FDFA2F0058837F /* SearchAndListRoutesViewController.swift */,
@@ -514,6 +523,7 @@
 				E785E6832705BD4C00A6ED99 /* UserRoute.swift in Sources */,
 				E76B7CF72715B61D00A8513F /* CreateRouteTagsTableViewCell.swift in Sources */,
 				E791280C26FDF6A10058837F /* AccountViewController.swift in Sources */,
+				E72E44FB2726F55A00336734 /* RouteInfoViewController.swift in Sources */,
 				E785E67A2704A46900A6ED99 /* EditProfileFormTableViewCell.swift in Sources */,
 				E79127F526FDF0E50058837F /* ExploreViewController.swift in Sources */,
 				E79127D926FDEEEA0058837F /* AppDelegate.swift in Sources */,
@@ -540,6 +550,7 @@
 				E785D8FB26FFE358002F305C /* DatabaseManager.swift in Sources */,
 				E791280026FDF3980058837F /* LoginViewController.swift in Sources */,
 				E76B7D0C271994D200A8513F /* HomeTabTableViewCell.swift in Sources */,
+				E72E44FD2726F59100336734 /* RouteImagesTableViewCell.swift in Sources */,
 				E785E67F27058A8900A6ED99 /* ProfileInfoHeaderCollectionReusableView.swift in Sources */,
 				E785D8FF26FFE375002F305C /* StorageManager.swift in Sources */,
 				E785E6A4270E8CF700A6ED99 /* SearchFilterCollectionViewCell.swift in Sources */,
@@ -552,6 +563,7 @@
 				E79127F726FDF1280058837F /* MapViewController.swift in Sources */,
 				E791280E26FDF6EF0058837F /* ForgotPasswordViewController.swift in Sources */,
 				E785E689270721AD00A6ED99 /* NoNotificationsView.swift in Sources */,
+				E72E44FA2726F55A00336734 /* RouteImageViewController.swift in Sources */,
 				E791281A26FFD7F70058837F /* VerifyEmailViewController.swift in Sources */,
 				E785D9012700F61F002F305C /* Extensions.swift in Sources */,
 				E785E68C2708704500A6ED99 /* NotificationFollowEventTableViewCell.swift in Sources */,

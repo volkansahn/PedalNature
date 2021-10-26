@@ -6,6 +6,8 @@
 //
 
 import UIKit
+import CoreLocation
+import MapKit
 
 final class RouteImagesTableViewCell: UITableViewCell {
     //identifier
@@ -53,7 +55,7 @@ final class RouteImagesTableViewCell: UITableViewCell {
 		mapView.delegate = self
         contentView.addSubview(mapView)
         contentView.addSubview(routeImageView)
-        contentView.addSubview(elevationChartView)
+        contentView.addSubview(notUseImageButton)
     }
     
     required init?(coder: NSCoder) {
@@ -69,24 +71,24 @@ final class RouteImagesTableViewCell: UITableViewCell {
 		let mapContainerHeight = 50
 		let mapContainerWidth = 100
 									   
-		mapContainerView.frame = CGRect(x: routeImageView.width-mapContainerWidth-20.0,
-                                     y: routeImageView.bottom - mapContainerHeight-20,
+        mapContainerView.frame = CGRect(x: Int(routeImageView.width)-mapContainerWidth-20,
+                                        y: Int(routeImageView.bottom) - mapContainerHeight-20,
                                      width: mapContainerWidth,
                                      height: mapContainerHeight)
 									 
-		mapView.frame = CGRect(x: mapContainerView.left + 5,
-                                     y: mapContainerView.top + 5,
+        mapView.frame = CGRect(x: Int(mapContainerView.left) + 5,
+                               y: Int(mapContainerView.top) + 5,
                                      width: mapContainerWidth-10,
                                      height: mapContainerHeight-10)
 		
-		let buttonWidth = 100
-		notUseImageButton.frame = CGRect(x: contentView.width/2 - buttonWidth/2,
+        let buttonWidth = 100
+        notUseImageButton.frame = CGRect(x: contentView.width/2 - CGFloat(buttonWidth/2),
                                        y: routeImageView.bottom,
-                                       width: buttonWidth,
+                                         width: CGFloat(buttonWidth),
                                        height: contentView.height/10)
 
     }
-    
+
     public func configure(image: RouteImage, locationCoordinates: [CLLocationCoordinate2D], locations : [CLLocation]){
         
 		routeImageView.image = image.image
@@ -109,12 +111,12 @@ final class RouteImagesTableViewCell: UITableViewCell {
         
         mapView.setRegion(coordinateRegion, animated: true)
         
-        addAnnotations(locationCoordinates : coordinates, image : image)
+        addAnnotations(image : image)
         return
        
     }
 	
-	private func addAnnotations(locationCoordinates: [CLLocationCoordinate2D], image : [RouteImage]){
+	private func addAnnotations(image : RouteImage){
         
         let annotation = MKPointAnnotation()
         annotation.coordinate = image.coordinate
@@ -123,7 +125,7 @@ final class RouteImagesTableViewCell: UITableViewCell {
         
     }
 }
-extension CreateRouteGraphsTableViewCell: MKMapViewDelegate{
+extension RouteImagesTableViewCell: MKMapViewDelegate{
     func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
         
         if let routePolyline = overlay as? MKPolyline {

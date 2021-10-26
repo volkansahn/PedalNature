@@ -69,7 +69,7 @@ final class RouteInfoViewController: UIViewController {
     }
 }
 
-extension CreatePostViewController: UITableViewDelegate, UITableViewDataSource{
+extension RouteInfoViewController: UITableViewDelegate, UITableViewDataSource{
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return 3
     }

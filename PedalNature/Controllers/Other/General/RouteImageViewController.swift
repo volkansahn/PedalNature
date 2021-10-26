@@ -14,7 +14,7 @@ import CoreLocation
 final class RouteImageViewController: UIViewController {
 	private var createRouteTableView : UITableView = {
         let tableView = UITableView()
-        tableView.register(CreateRouteImagesTableViewCell.self, forCellReuseIdentifier: CreateRouteImagesTableViewCell.identifier)
+        tableView.register(RouteImagesTableViewCell.self, forCellReuseIdentifier: RouteImagesTableViewCell.identifier)
         tableView.separatorStyle = .none
         return tableView
     }()
@@ -29,6 +29,7 @@ final class RouteImageViewController: UIViewController {
 
 	override func viewDidLoad() {
         super.viewDidLoad()
+        view.backgroundColor = .systemBackground
         createMockModals()
         view.addSubview(createRouteTableView)
         createRouteTableView.delegate = self
@@ -61,21 +62,21 @@ final class RouteImageViewController: UIViewController {
     }
 }
 
-extension CreatePostViewController: UITableViewDelegate, UITableViewDataSource{
+extension RouteImageViewController: UITableViewDelegate, UITableViewDataSource{
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return images.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-		let cell = tableView.dequeueReusableCell(withIdentifier: CreateRouteImagesTableViewCell.identifier) as! CreateRouteImagesTableViewCell
-        cell.configure(image: images[indexPath.row], locationCoordinates: [CLLocationCoordinate2D], locations : [CLLocation])
+		let cell = tableView.dequeueReusableCell(withIdentifier: RouteImagesTableViewCell.identifier) as! RouteImagesTableViewCell
+        cell.configure(image: images[indexPath.row], locationCoordinates: locationCoordinates, locations: locations)
         return cell
         
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         
-        return view.width
+        return 1.5*view.width
         
     }
     

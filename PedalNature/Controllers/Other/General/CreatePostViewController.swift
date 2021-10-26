@@ -89,13 +89,17 @@ final class CreatePostViewController: UIViewController {
 	
     public var maxElevation = 0.0
     
+    private var modal : UserRoute?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         createMockModals()
 		configureRouteInfo()
-		
+        view.backgroundColor = .systemBackground
 		//Route Graph
 		view.addSubview(createRouteTableView)
+        createRouteTableView.delegate = self
+        createRouteTableView.dataSource = self
 		// Tag
         view.addSubview(tagsLabel)
         view.addSubview(goToTagSearchButton)
@@ -104,12 +108,12 @@ final class CreatePostViewController: UIViewController {
 		// Image
         view.addSubview(imagesLabel)
         view.addSubview(goToRouteImageButton)
-        goToTagSearchButton.addTarget(self, action: #selector(didTapImagesView), for: .touchUpInside)
+        goToRouteImageButton.addTarget(self, action: #selector(didTapImagesView), for: .touchUpInside)
 		
 		// Info
         view.addSubview(infoLabel)
         view.addSubview(goToRouteInfoButton)
-        goToTagSearchButton.addTarget(self, action: #selector(didTapRouteInfoView), for: .touchUpInside)
+        goToRouteInfoButton.addTarget(self, action: #selector(didTapRouteInfoView), for: .touchUpInside)
 		
 		//Save Button
 		view.addSubview(saveButton)
@@ -119,8 +123,8 @@ final class CreatePostViewController: UIViewController {
         self.navigationItem.setHidesBackButton(true, animated: true)
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Cancel", style: .plain, target: self, action: #selector(cancelTapped))
         configureRouteInfo()
-        addAnnotations()
     }
+    
 	//Tag
 	@objc func didTapTagView(){
         let vc = TagPeopleViewController()
@@ -128,7 +132,7 @@ final class CreatePostViewController: UIViewController {
         self.navigationController?.pushViewController(vc, animated: true)
     }
 	//Image
-	@objc func goToRouteImageButton(){
+	@objc func didTapImagesView(){
         let vc = RouteImageViewController()
         vc.title = "Route Images"
 		vc.images = images
@@ -137,11 +141,11 @@ final class CreatePostViewController: UIViewController {
         self.navigationController?.pushViewController(vc, animated: true)
     }
 	//Info
-	@objc func goToRouteInfoButton(){
+	@objc func didTapRouteInfoView(){
         let vc = RouteInfoViewController()
         vc.title = "Route Info"
 		vc.duration = duration
-		vc.distance : String?  
+		vc.distance = distance
 		vc.maxSpeed = 0.0
 		vc.maxElevation = 0.0
 		vc.locations = locations
@@ -160,44 +164,43 @@ final class CreatePostViewController: UIViewController {
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        let bottomHeight = view.safeAreaLayoutGuide.layoutFrame.size.height
 
         createRouteTableView.frame = CGRect(x: 0,
                                             y: view.safeAreaInsets.top,
                                             width: view.width,
                                             height: view.width)
-		let goToViewHeights = 50									
+		let goToViewHeights = 35
 		tagsLabel.frame = CGRect(x: 5,
-                                 y: createRouteTableView.bottom + 10,
-                                 width: goToViewHeights + 50,
+                                 y: Int(createRouteTableView.bottom) + 30,
+                                 width: Int(view.width/2.0),
                                  height: goToViewHeights)
         
-        goToTagSearchButton.frame = CGRect(x: view.width-50,
-                                           y: createRouteTableView.bottom + 15,
-                                           width: goToViewHeights-30,
-                                           height: goToViewHeights-30)
+        goToTagSearchButton.frame = CGRect(x: Int(view.width)-50,
+                                           y: Int(createRouteTableView.bottom) + 30,
+                                           width: goToViewHeights,
+                                           height: goToViewHeights)
 		imagesLabel.frame = CGRect(x: 5,
-                                 y: tagsLabel.bottom + 10,
-                                 width: goToViewHeights + 50,
+                                   y: Int(tagsLabel.bottom) + 30,
+                                   width: Int(view.width/2.0),
                                  height: goToViewHeights)
         
-        goToRouteImageButton.frame = CGRect(x: view.width-50,
-                                           y: goToTagSearchButton.bottom + 15,
-                                           width: goToViewHeights-30,
-                                           height: goToViewHeights-30)
+        goToRouteImageButton.frame = CGRect(x: Int(view.width)-50,
+                                            y: Int(goToTagSearchButton.bottom) + 30,
+                                           width: goToViewHeights,
+                                           height: goToViewHeights)
 		infoLabel.frame = CGRect(x: 5,
-                                 y: imagesLabel.bottom + 10,
-                                 width: goToViewHeights + 50,
+                                 y: Int(imagesLabel.bottom) + 30,
+                                 width: Int(view.width/2.0),
                                  height: goToViewHeights)
         
-        goToRouteInfoButton.frame = CGRect(x: view.width-50,
-                                           y: goToRouteImageButton.bottom + 15,
-                                           width: goToViewHeights-30,
-                                           height: goToViewHeights-30)
+        goToRouteInfoButton.frame = CGRect(x: Int(view.width)-50,
+                                           y: Int(goToRouteImageButton.bottom) + 30,
+                                           width: goToViewHeights,
+                                           height: goToViewHeights)
 										   
 		let buttonWidth = 100
-		saveButton.frame = CGRect(x: view.width/2 - buttonWidth/2,
-                                       y: infoLabel.bottom,
+        saveButton.frame = CGRect(x: Int(view.width)/2 - buttonWidth/2,
+                                  y: Int(infoLabel.bottom)+30,
                                        width: buttonWidth,
                                        height: 50)
         
@@ -240,7 +243,6 @@ extension CreatePostViewController: UITableViewDelegate, UITableViewDataSource{
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        
         let cell = tableView.dequeueReusableCell(withIdentifier: CreateRouteGraphsTableViewCell.identifier) as! CreateRouteGraphsTableViewCell
         cell.configure(with: locationCoordinates, locations: locations, images : images)
         return cell

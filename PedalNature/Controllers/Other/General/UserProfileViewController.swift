@@ -12,7 +12,7 @@ final class UserProfileViewController: UIViewController {
     private var collectionView: UICollectionView?
     
     private var userRoutes = [UserRoute]()
-    
+        
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
@@ -100,10 +100,10 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        //let modal = userRoutes[indexPath.row]
+        let modal = userRoutes[indexPath.row]
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: RouteCollectionViewCell.identifier, for: indexPath) as! RouteCollectionViewCell
-        //cell.configure(with: modal)
-        cell.configure(debug: "hello")
+        cell.configure(with: modal)
+        //cell.configure(debug: "hello")
         return cell
     }
     

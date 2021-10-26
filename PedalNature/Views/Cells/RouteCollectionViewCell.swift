@@ -108,8 +108,8 @@ class RouteCollectionViewCell: UICollectionViewCell {
 		// MARK: Route Image Section
         routeMapPhotoImageView.frame = CGRect(x: 0,
                                           y: routeInfoSectionHeight,
-                                          width: contentView.width,
-                                          height: contentView.height-routeInfoSectionHeight)
+                                              width: Int(contentView.width),
+                                              height: Int(contentView.height)-routeInfoSectionHeight)
         
         // MARK: Route Info
 		routeLocationLabel.frame = CGRect(x: 5,
@@ -120,11 +120,11 @@ class RouteCollectionViewCell: UICollectionViewCell {
         dateLabel.frame = CGRect(x: 5,
                                             y: routeLocationLabel.bottom,
                                             width: contentView.width/2,
-                                            height: routeInfoSectionHeight/2)
+                                 height: CGFloat(routeInfoSectionHeight/2))
 											
-		routeLengthLabel.frame = CGRect(x: contentView.width - 100,
+        routeLengthLabel.frame = CGRect(x: Int(contentView.width) - 100,
                                             y: routeInfoSectionHeight/2,
-                                            width: contentView.width/2,
+                                        width: Int(contentView.width)/2,
                                             height: routeInfoSectionHeight)
         
         // MARK: Route Tag and Name Section
@@ -219,17 +219,17 @@ class RouteCollectionViewCell: UICollectionViewCell {
                 containerView.isHidden = false
                 withLabel.isHidden = false
                 firstTagPhotoImageView.isHidden = false
-                withLabel.tag = row
-                firstTagPhotoImageView.tag = row
+                //withLabel.tag = row
+                //firstTagPhotoImageView.tag = row
                 //firstTagPhotoImageView.sd_setImage(with: modal.tagUser[0].profilePhoto, completed: nil)
             }else if modal.tagUser.count == 2{
                 containerView.isHidden = false
                 withLabel.isHidden = false
                 secondTagPhotoImageView.isHidden = false
                 firstTagPhotoImageView.isHidden = false
-                withLabel.tag = row
-                firstTagPhotoImageView.tag = row
-                secondTagPhotoImageView.tag = row
+//                withLabel.tag = row
+//                firstTagPhotoImageView.tag = row
+//                secondTagPhotoImageView.tag = row
                 //firstTagPhotoImageView.sd_setImage(with: modal.tagUser[0].profilePhoto, completed: nil)
                 //secondTagPhotoImageView.sd_setImage(with: modal.tagUser[1].profilePhoto, completed: nil)
             }else if modal.tagUser.count > 2{
@@ -239,10 +239,10 @@ class RouteCollectionViewCell: UICollectionViewCell {
                 secondTagPhotoImageView.isHidden = false
                 firstTagPhotoImageView.isHidden = false
                 moreTagLabel.isHidden = false
-                withLabel.tag = row
-                firstTagPhotoImageView.tag = row
-                secondTagPhotoImageView.tag = row
-                moreTagLabel.tag = row
+//                withLabel.tag = row
+//                firstTagPhotoImageView.tag = row
+//                secondTagPhotoImageView.tag = row
+//                moreTagLabel.tag = row
                 //firstTagPhotoImageView.sd_setImage(with: modal.tagUser[0].profilePhoto, completed: nil)
                 //secondTagPhotoImageView.sd_setImage(with: modal.tagUser[1].profilePhoto, completed: nil)
             }

@@ -65,7 +65,6 @@ class TagPeopleViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
-        navigationController?.navigationBar.topItem?.titleView = searchBar
         
         taggedPeopleTableView.delegate = self
         taggedPeopleTableView.dataSource = self
@@ -79,6 +78,7 @@ class TagPeopleViewController: UIViewController {
         
         view.addSubview(NameResultTableView)
         view.addSubview(taggedPeopleTableView)
+        view.addSubview(searchBar)
         view.addSubview(dimmedView)
         
         let gesture = UITapGestureRecognizer(target: self, action: #selector(didTapCancelButtonItem))
@@ -98,8 +98,13 @@ class TagPeopleViewController: UIViewController {
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         
+        searchBar.frame = CGRect(x: 0,
+                                 y: view.safeAreaInsets.top,
+                                         width: view.width,
+                                         height: 52)
+        
         headerLabel.frame = CGRect(x: 0,
-                                   y: view.safeAreaInsets.top,
+                                   y: searchBar.bottom + 30,
                                            width: view.width,
                                            height: 52)
         

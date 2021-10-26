@@ -204,6 +204,7 @@ extension ProfileViewController: RouteCollectionViewCellDelegate{
     func didTapTaggedPersonsButtonResponse(_ row: Int) {
         let vc = TaggedPersonsViewController()
         vc.title = "Tags"
-        vc.routeModal = modals[row]
+        vc.routeModal = userRoutes[row]
         self.navigationController?.pushViewController(vc, animated: true)
     }
+}

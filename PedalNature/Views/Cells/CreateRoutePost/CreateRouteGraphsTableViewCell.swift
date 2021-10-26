@@ -40,27 +40,30 @@ final class CreateRouteGraphsTableViewCell: UITableViewCell {
     
     
     public func configure(with locationCoordinates: [CLLocationCoordinate2D], locations : [CLLocation], images : [RouteImage]){
-        let coordinates = Array(locationCoordinates[3..<locationCoordinates.count])
-        let syncedLocations = Array(locations[3..<locations.count])
-        let polyline = MKGeodesicPolyline(coordinates: coordinates, count: coordinates.count)
-        mapView.addOverlay(polyline)
-        let midLocation = coordinates[(coordinates.count/2)]
-        let startLocation = locations.first!
-        let endLocation = locations.last!
-        let delta: CLLocationDistance = startLocation.distance(from: endLocation)
-        let regionRadius : CLLocationDistance = delta + 500
+        if locationCoordinates.count > 3{
+            let coordinates = Array(locationCoordinates[3..<locationCoordinates.count])
+            let syncedLocations = Array(locations[3..<locations.count])
+            let polyline = MKGeodesicPolyline(coordinates: coordinates, count: coordinates.count)
+            mapView.addOverlay(polyline)
+            let midLocation = coordinates[(coordinates.count/2)]
+            let startLocation = locations.first!
+            let endLocation = locations.last!
+            let delta: CLLocationDistance = startLocation.distance(from: endLocation)
+            let regionRadius : CLLocationDistance = delta + 100
+            
+            let coordinateRegion = MKCoordinateRegion(
+                center: midLocation,
+                latitudinalMeters: regionRadius,
+                longitudinalMeters: regionRadius)
+            
+            mapView.setRegion(coordinateRegion, animated: true)
+            findMaxEleAndSpeedCoordinates(locations : syncedLocations)
+            addAnnotations(locationCoordinates : coordinates, images : images)
+        }else{
+            print("finished too early")
+        }
         
-        let coordinateRegion = MKCoordinateRegion(
-            center: midLocation,
-            latitudinalMeters: regionRadius,
-            longitudinalMeters: regionRadius)
-        
-        mapView.setRegion(coordinateRegion, animated: true)
-        findMaxEleAndSpeedCoordinates(locations : syncedLocations)
-        addAnnotations(locationCoordinates : coordinates, images : images)
-        
-        return
-        
+                
     }
     
     private func addAnnotations(locationCoordinates: [CLLocationCoordinate2D], images : [RouteImage]){
