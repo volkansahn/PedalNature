@@ -207,7 +207,7 @@ class RouteCollectionViewCell: UICollectionViewCell {
 
 		// MARK: Route Info
         routeLocationLabel.text = modal.city
-        dateLabel.text = "/(modal.createdDate)"
+        dateLabel.text = "\(modal.createdDate)"
 		routeLengthLabel.text = modal.routeLength
         
         // MARK: Route Name and Tag
