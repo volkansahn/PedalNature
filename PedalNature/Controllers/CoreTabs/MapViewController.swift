@@ -229,13 +229,15 @@ final class MapViewController: UIViewController {
     
     @objc func cameraPressed(){
         pausePressed()
-        let vc = UIImagePickerController()
+		let vc = CameraViewController()
+        vc.modalPresentationStyle = .fullScreen
+        self.navigationController?.pushViewController(vc, animated: true)
+		
+        /* let vc = UIImagePickerController()
         vc.sourceType = .camera
         vc.allowsEditing = true
         vc.delegate = self
-        present(vc, animated: true)
-        
-        
+        present(vc, animated: true) */
     }
     
     @objc func holdDown(){
