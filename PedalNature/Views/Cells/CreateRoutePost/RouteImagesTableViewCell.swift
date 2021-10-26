@@ -40,7 +40,7 @@ final class RouteImagesTableViewCell: UITableViewCell {
         return imageView
     }()
 	
-	private let notUseImageButton : UIButton = {
+	private let useNotUseImageButton : UIButton = {
         let button = UIButton()
         button.setTitle("Don't Use", for: .normal)
         button.layer.masksToBounds = true
@@ -50,14 +50,46 @@ final class RouteImagesTableViewCell: UITableViewCell {
         return button
     }()
 	
+	private let dimmedView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .black
+        view.isHidden = true
+        view.alpha = 0
+        return view
+    }()
+	
 	override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?){
         super.init(style: style, reuseIdentifier: reuseIdentifier)
 		mapView.delegate = self
+		contentView.addSubview(mapContainerView)
         contentView.addSubview(mapView)
         contentView.addSubview(routeImageView)
-        contentView.addSubview(notUseImageButton)
+        contentView.addSubview(useNotUseImageButton)
+		contentView.addSubview(dimmedView)
     }
     
+	@objc func useNotUseImageButtonPressed(){
+		
+		if useNotUseImageButton.currentTitle == "Don't Use"{
+			dimmedView.isHidden = false
+			UIView.animate(withDuration: 0.2) {
+				self.dimmedView.alpha = 0.5
+			}
+			button.setTitle("Use", for: .normal)
+			button.backgroundColor = UIColor(rgb: 0x5da973)
+		}else{
+			UIView.animate(withDuration: 0.2, animations: {
+				self.dimmedView.alpha = 0
+			}) { done in
+				if done{
+					self.dimmedView.isHidden = true
+				}
+			}
+			button.setTitle("Don't Use", for: .normal)
+			button.backgroundColor = UIColor.red
+		}
+	}
+	
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -83,9 +115,11 @@ final class RouteImagesTableViewCell: UITableViewCell {
 		
         let buttonWidth = 100
         notUseImageButton.frame = CGRect(x: contentView.width/2 - CGFloat(buttonWidth/2),
-                                       y: routeImageView.bottom,
+                                       y: CGFloat(routeImageView.bottom + 30),
                                          width: CGFloat(buttonWidth),
                                        height: contentView.height/10)
+									   
+		dimmedView.frame = routeImageView.frame
 
     }
 
