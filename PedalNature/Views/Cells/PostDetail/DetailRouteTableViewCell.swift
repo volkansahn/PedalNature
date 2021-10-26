@@ -145,94 +145,17 @@ final class DetailRouteTableViewCell: UITableViewCell {
     }()
     
     // MARK: Route Info
-    private let durationHeaderLabel : UILabel = {
-        let label = UILabel()
-        label.textColor = .label
-        label.font = .systemFont(ofSize: 15, weight: .semibold)
-        label.textAlignment = .center
-        label.backgroundColor = .lightGray
-        label.text = "Duration"
-        label.numberOfLines = 1
-        return label
+	private var routeInfoTableView : UITableView = {
+        let tableView = UITableView()
+        tableView.register(CreateRouteInfoTableViewCell.self, forCellReuseIdentifier: CreateRouteInfoTableViewCell.identifier)
+        tableView.separatorStyle = .none
+        return tableView
     }()
-    
-    private let distanceHeaderLabel : UILabel = {
-        let label = UILabel()
-        label.textColor = .label
-        label.font = .systemFont(ofSize: 15, weight: .semibold)
-        label.textAlignment = .center
-        label.backgroundColor = .lightGray
-        label.text = "Distance"
-        label.numberOfLines = 1
-        return label
-    }()
-    
-    private let maxSpeedHeaderLabel : UILabel = {
-        let label = UILabel()
-        label.textColor = .label
-        label.font = .systemFont(ofSize: 15, weight: .semibold)
-        label.textAlignment = .center
-        label.backgroundColor = .lightGray
-        label.text = "Max.Speed"
-        label.numberOfLines = 1
-        return label
-    }()
-    
-    private let maxElevationHeaderLabel : UILabel = {
-        let label = UILabel()
-        label.textColor = .label
-        label.font = .systemFont(ofSize: 15, weight: .semibold)
-        label.textAlignment = .center
-        label.backgroundColor = .lightGray
-        label.text = "Max.Elevation"
-        label.numberOfLines = 1
-        return label
-    }()
-    
-    private let durationLabel : UILabel = {
-        let label = UILabel()
-        label.textColor = .label
-        label.font = .systemFont(ofSize: 17, weight: .semibold)
-        label.textAlignment = .center
-        label.backgroundColor = .lightGray
-        label.text = "1h30d"
-        label.numberOfLines = 1
-        return label
-    }()
-    
-    private let distanceLabel : UILabel = {
-        let label = UILabel()
-        label.textColor = .label
-        label.font = .systemFont(ofSize: 17, weight: .semibold)
-        label.textAlignment = .center
-        label.backgroundColor = .lightGray
-        label.text = "1.37km"
-        label.numberOfLines = 1
-        return label
-    }()
-    
-    private let maxSpeedLabel : UILabel = {
-        let label = UILabel()
-        label.textColor = .label
-        label.font = .systemFont(ofSize: 17, weight: .semibold)
-        label.textAlignment = .center
-        label.backgroundColor = .lightGray
-        label.text = "22m/sn"
-        label.numberOfLines = 1
-        return label
-    }()
-    
-    private let maxElevationLabel : UILabel = {
-        let label = UILabel()
-        label.textColor = .label
-        label.font = .systemFont(ofSize: 17, weight: .semibold)
-        label.textAlignment = .center
-        label.backgroundColor = .lightGray
-        label.text = "750m"
-        label.numberOfLines = 1
-        return label
-    }()
-    
+	public var duration: String
+	public var distance: String
+	public var maxElevation: String
+	public var maxSpeed: String
+	
     // MARK: Elevation Graph
     private let elevationGraphContainerImageView : UIImageView = {
         let imageView = UIImageView()
@@ -318,14 +241,9 @@ final class DetailRouteTableViewCell: UITableViewCell {
         likeAndCommentNumberLabel.addGestureRecognizer(tapGesture)
         
         // MARK: Route Info
-        contentView.addSubview(durationHeaderLabel)
-        contentView.addSubview(distanceHeaderLabel)
-        contentView.addSubview(maxSpeedHeaderLabel)
-        contentView.addSubview(maxElevationHeaderLabel)
-        contentView.addSubview(durationLabel)
-        contentView.addSubview(distanceLabel)
-        contentView.addSubview(maxSpeedLabel)
-        contentView.addSubview(maxElevationLabel)
+		contentView.addSubview(routeInfoTableView)
+		routeInfoTableView.delegate = self
+		routeInfoTableView.dataSource = self
         
         // MARK: Elevation Graph
         contentView.addSubview(elevationGraphContainerImageView)
@@ -434,9 +352,7 @@ final class DetailRouteTableViewCell: UITableViewCell {
                                     y: Double(homeImageView.bottom)-tagPhotoSize-15,
                                     width: tagPhotoSize,
                                     height: tagPhotoSize)
-        
-        
-        
+
         // MARK: Action Section
         let actionButtonSize = (actionSectionHeight/2)-5
         likeButton.frame = CGRect(x: 5,
@@ -455,48 +371,11 @@ final class DetailRouteTableViewCell: UITableViewCell {
                                                  height: CGFloat(actionSectionHeight/2))
         
         // MARK: ROUTE INFO
-        
-        let detailedRouteHeight = 100.0
-        durationHeaderLabel.frame = CGRect(x: 0,
+		routeInfoTableView.frame = CGRect(x: 0,
                                            y: likeAndCommentNumberLabel.bottom,
-                                           width: contentView.width/4-10,
-                                           height: detailedRouteHeight/3)
-        
-        distanceHeaderLabel.frame = CGRect(x: durationHeaderLabel.right,
-                                           y: likeAndCommentNumberLabel.bottom,
-                                           width: contentView.width/4.0,
-                                           height: detailedRouteHeight/3)
-        
-        maxSpeedHeaderLabel.frame = CGRect(x: distanceHeaderLabel.right,
-                                           y: likeAndCommentNumberLabel.bottom,
-                                           width: contentView.width/4.0,
-                                           height: detailedRouteHeight/3)
-        
-        maxElevationHeaderLabel.frame = CGRect(x: maxSpeedHeaderLabel.right,
-                                               y: likeAndCommentNumberLabel.bottom,
-                                               width: contentView.width/4+10,
-                                               height: detailedRouteHeight/3)
-        
-        durationLabel.frame = CGRect(x: 0,
-                                     y: durationHeaderLabel.bottom,
-                                     width: contentView.width/4-10,
-                                     height: 2*detailedRouteHeight/3)
-        
-        distanceLabel.frame = CGRect(x: durationLabel.right,
-                                     y: distanceHeaderLabel.bottom,
-                                     width: contentView.width/4.0,
-                                     height: 2*detailedRouteHeight/3)
-        
-        maxSpeedLabel.frame = CGRect(x: distanceLabel.right,
-                                     y: maxSpeedHeaderLabel.bottom,
-                                     width: contentView.width/4.0,
-                                     height: 2*detailedRouteHeight/3)
-        
-        maxElevationLabel.frame = CGRect(x: maxSpeedLabel.right,
-                                         y: maxElevationHeaderLabel.bottom,
-                                         width: contentView.width/4+10,
-                                         height: 2*detailedRouteHeight/3)
-        
+                                           width: contentView.width,
+                                           height: contentView.width)
+		
         // MARK: Elevation Graph
         elevationHeader.frame = CGRect(x: 0,
                                        y: maxElevationLabel.bottom,
@@ -599,15 +478,53 @@ final class DetailRouteTableViewCell: UITableViewCell {
         }
         
         // MARK: Route Info
-            //durationLabel.text = modal.routeDuration
-            //distanceLabel.text = modal.routeLength
-            //maxSpeedLabel.text = modal.speeds
-            //maxElevationLabel.text = modal.elevations
+		//configureRouteInfo()
+        //duration = modal.routeDuration
+		//distance = modal.routeLength
+		duration = "1h20m" 
+		distance = "1.27km"
+        maxElevation = "875m"
+		maxSpeed = "22m/sn"
         // MARK: Elevation Graph
         elevationGraphContainerImageView.image = UIImage(named: "test")
 
         // MARK: Speed Graph
         speedGraphContainerImageView.image = UIImage(named: "test")
+
+    }
+    
+	/*
+	private func configureRouteInfo(){
+        for location in locations {
+            if location.speed > maxSpeed{
+                maxSpeed = maxSpeed.rounded(toPlaces: 2)
+            }
+            
+            if location.altitude > maxElevation{
+                maxElevation = location.altitude
+                maxElevation = maxElevation.rounded(toPlaces: 2)
+
+            }
+        }
+    }
+	*/
+}
+
+extension DetailRouteTableViewCell: UITableViewDelegate, UITableViewDataSource{
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return 1
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        
+        let cell = tableView.dequeueReusableCell(withIdentifier: CreateRouteInfoTableViewCell.identifier) as! CreateRouteInfoTableViewCell
+        cell.configure(duration: duration!, distance: distance!, maxElevation: String(maxElevation), maxSpeed: String(maxSpeed))
+        return cell
+    }
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        
+        return view.width
 
     }
     
