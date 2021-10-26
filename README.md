@@ -6,10 +6,12 @@
 //
 
 import UIKit
+
 import AVFoundation
 
 /// Create Post for Share
 /// Reached from Activity Record View
+
 final class CameraViewController: UIViewController {
 
 	private let session = AVCaptureSession()
