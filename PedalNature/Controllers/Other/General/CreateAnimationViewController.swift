@@ -216,7 +216,10 @@ class CreateAnimationViewController: UIViewController {
     @objc func cancelTapped(){
         let actionSheet = UIAlertController(title: "Cancel Sharing Route", message: "Do you want to Cancel Sharing Route.", preferredStyle: .actionSheet)
         actionSheet.addAction(UIAlertAction(title: "Yes", style: .destructive, handler: { _ in
-            print("Yes Pressed")
+            self.dismiss(animated: true) {
+                self.tabBarController?.tabBar.isHidden = false
+                self.tabBarController?.selectedIndex = 0
+            }
         }))
         actionSheet.addAction(UIAlertAction(title: "Dismiss", style: .cancel, handler: nil))
 

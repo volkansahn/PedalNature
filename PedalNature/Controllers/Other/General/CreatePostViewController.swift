@@ -171,7 +171,11 @@ final class CreatePostViewController: UIViewController {
     @objc func cancelTapped(){
         let actionSheet = UIAlertController(title: "Cancel Saving Route", message: "Do you want to Cancel Save Route.\nThis route will not be listed on your profile ", preferredStyle: .actionSheet)
         actionSheet.addAction(UIAlertAction(title: "Yes", style: .destructive, handler: { _ in
-            print("Yes Pressed")
+            self.dismiss(animated: true) {
+                self.tabBarController?.tabBar.isHidden = false
+                self.tabBarController?.selectedIndex = 0
+            }
+            
         }))
         actionSheet.addAction(UIAlertAction(title: "Dismiss", style: .cancel, handler: nil))
 
