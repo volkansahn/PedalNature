@@ -12,15 +12,15 @@ import CoreLocation
 /// Create Post for Share
 /// Reached from Activity Record View
 final class CreatePostViewController: UIViewController {
-
-	private var createRouteTableView : UITableView = {
+    
+    private var createRouteTableView : UITableView = {
         let tableView = UITableView()
         tableView.register(CreateRouteGraphsTableViewCell.self, forCellReuseIdentifier: CreateRouteGraphsTableViewCell.identifier)
         tableView.separatorStyle = .none
         return tableView
     }()
-	
-     private let tagsLabel: UILabel = {
+    
+    private let tagsLabel: UILabel = {
         let label = UILabel()
         label.text = "Tag Person"
         label.textColor = .label
@@ -34,8 +34,8 @@ final class CreatePostViewController: UIViewController {
         button.tintColor = .label
         return button
     }()
-	
-	private let imagesLabel: UILabel = {
+    
+    private let imagesLabel: UILabel = {
         let label = UILabel()
         label.text = "Route Image"
         label.textColor = .label
@@ -49,8 +49,8 @@ final class CreatePostViewController: UIViewController {
         button.tintColor = .label
         return button
     }()
-	
-	private let infoLabel: UILabel = {
+    
+    private let infoLabel: UILabel = {
         let label = UILabel()
         label.text = "Route Info"
         label.textColor = .label
@@ -64,8 +64,8 @@ final class CreatePostViewController: UIViewController {
         button.tintColor = .label
         return button
     }()
-	
-	private let saveButton : UIButton = {
+    
+    private let saveButton : UIButton = {
         let button = UIButton()
         button.setTitle("Save Route", for: .normal)
         button.layer.masksToBounds = true
@@ -74,19 +74,19 @@ final class CreatePostViewController: UIViewController {
         button.setTitleColor(.white, for: .normal)
         return button
     }()
-	
+    
     public var locationCoordinates = [CLLocationCoordinate2D]()
     
     public var locations = [CLLocation]()
     
     public var images = [RouteImage]()
-	
-	public var duration : String?
-	
-    public var distance : String?  
-	
-	public var maxSpeed = 0.0
-	
+    
+    public var duration : String?
+    
+    public var distance : String?
+    
+    public var maxSpeed = 0.0
+    
     public var maxElevation = 0.0
     
     private var modal : UserRoute?
@@ -94,115 +94,131 @@ final class CreatePostViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         createMockModals()
-		configureRouteInfo()
+        configureRouteInfo()
         view.backgroundColor = .systemBackground
-		//Route Graph
-		view.addSubview(createRouteTableView)
+        //Route Graph
+        view.addSubview(createRouteTableView)
         createRouteTableView.delegate = self
         createRouteTableView.dataSource = self
-		// Tag
+        // Tag
         view.addSubview(tagsLabel)
         view.addSubview(goToTagSearchButton)
         goToTagSearchButton.addTarget(self, action: #selector(didTapTagView), for: .touchUpInside)
-		
-		// Image
+        
+        // Image
         view.addSubview(imagesLabel)
         view.addSubview(goToRouteImageButton)
         goToRouteImageButton.addTarget(self, action: #selector(didTapImagesView), for: .touchUpInside)
-		
-		// Info
+        
+        // Info
         view.addSubview(infoLabel)
         view.addSubview(goToRouteInfoButton)
         goToRouteInfoButton.addTarget(self, action: #selector(didTapRouteInfoView), for: .touchUpInside)
-		
-		//Save Button
-		view.addSubview(saveButton)
-		saveButton.addTarget(self, action: #selector(saveRoutePressed), for: .touchUpInside)
-		
-		//Cancel Route
+        
+        //Save Button
+        view.addSubview(saveButton)
+        saveButton.addTarget(self, action: #selector(saveRoutePressed), for: .touchUpInside)
+        
+        //Cancel Route
         self.navigationItem.setHidesBackButton(true, animated: true)
-        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Cancel", style: .plain, target: self, action: #selector(cancelTapped))
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Don't Save", style: .plain, target: self, action: #selector(cancelTapped))
         configureRouteInfo()
     }
     
-	//Tag
-	@objc func didTapTagView(){
+    //Tag
+    @objc func didTapTagView(){
         let vc = TagPeopleViewController()
         vc.title = "Tag People"
         self.navigationController?.pushViewController(vc, animated: true)
     }
-	//Image
-	@objc func didTapImagesView(){
+    //Image
+    @objc func didTapImagesView(){
         let vc = RouteImageViewController()
         vc.title = "Route Images"
-		vc.images = images
-		vc.locationCoordinates = locationCoordinates
-		vc.locations = locations
+        vc.images = images
+        vc.locationCoordinates = locationCoordinates
+        vc.locations = locations
         self.navigationController?.pushViewController(vc, animated: true)
     }
-	//Info
-	@objc func didTapRouteInfoView(){
+    //Info
+    @objc func didTapRouteInfoView(){
         let vc = RouteInfoViewController()
         vc.title = "Route Info"
-		vc.duration = duration
-		vc.distance = distance
-		vc.maxSpeed = 0.0
-		vc.maxElevation = 0.0
-		vc.locations = locations
+        vc.duration = duration
+        vc.distance = distance
+        vc.maxSpeed = 0.0
+        vc.maxElevation = 0.0
+        vc.locations = locations
         self.navigationController?.pushViewController(vc, animated: true)
     }
-	
-	//Save Route
-	@objc func saveRoutePressed(){
-        print("Save Pressed")
+    
+    //Save Route
+    @objc func saveRoutePressed(){
+        let alert = UIAlertController(title: "Saved",
+                                      message: "Your Route has been saved!", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Ok", style: .cancel, handler: { [self] _ in
+            let vc = CreateAnimationViewController()
+            vc.title = "Share Route"
+            vc.route = self.locationCoordinates
+            vc.locations = self.locations
+            vc.images = self.images
+            self.navigationController?.pushViewController(vc, animated: true)
+        }))
+        self.present(alert, animated: true, completion: nil)
     }
-	
-	//Cancel Save
-	@objc func cancelTapped(){
-        print("Cancel Pressed")
+    
+    //Cancel Save
+    @objc func cancelTapped(){
+        let actionSheet = UIAlertController(title: "Cancel Saving Route", message: "Do you want to Cancel Save Route.\nThis route will not be listed on your profile ", preferredStyle: .actionSheet)
+        actionSheet.addAction(UIAlertAction(title: "Yes", style: .destructive, handler: { _ in
+            print("Yes Pressed")
+        }))
+        actionSheet.addAction(UIAlertAction(title: "Dismiss", style: .cancel, handler: nil))
+
+        present(actionSheet, animated: true, completion: nil)
     }
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-
-        createRouteTableView.frame = CGRect(x: 0,
-                                            y: view.safeAreaInsets.top,
-                                            width: view.width,
+        
+        createRouteTableView.frame = CGRect(x: 20,
+                                            y: view.safeAreaInsets.top + 20.0,
+                                            width: view.width - 40.0,
                                             height: view.width)
-		let goToViewHeights = 35
-		tagsLabel.frame = CGRect(x: 5,
+        let goToViewHeights = 30
+        tagsLabel.frame = CGRect(x: 20,
                                  y: Int(createRouteTableView.bottom) + 30,
-                                 width: Int(view.width/2.0),
+                                 width: Int(view.width/2.0) - 20,
                                  height: goToViewHeights)
         
-        goToTagSearchButton.frame = CGRect(x: Int(view.width)-50,
+        goToTagSearchButton.frame = CGRect(x: Int(view.width)-70,
                                            y: Int(createRouteTableView.bottom) + 30,
                                            width: goToViewHeights,
                                            height: goToViewHeights)
-		imagesLabel.frame = CGRect(x: 5,
+        imagesLabel.frame = CGRect(x: 20,
                                    y: Int(tagsLabel.bottom) + 30,
-                                   width: Int(view.width/2.0),
-                                 height: goToViewHeights)
+                                   width: Int(view.width/2.0) - 20,
+                                   height: goToViewHeights)
         
-        goToRouteImageButton.frame = CGRect(x: Int(view.width)-50,
+        goToRouteImageButton.frame = CGRect(x: Int(view.width)-70,
                                             y: Int(goToTagSearchButton.bottom) + 30,
-                                           width: goToViewHeights,
-                                           height: goToViewHeights)
-		infoLabel.frame = CGRect(x: 5,
+                                            width: goToViewHeights,
+                                            height: goToViewHeights)
+        infoLabel.frame = CGRect(x: 20,
                                  y: Int(imagesLabel.bottom) + 30,
-                                 width: Int(view.width/2.0),
+                                 width: Int(view.width/2.0) - 20,
                                  height: goToViewHeights)
         
-        goToRouteInfoButton.frame = CGRect(x: Int(view.width)-50,
+        goToRouteInfoButton.frame = CGRect(x: Int(view.width)-70,
                                            y: Int(goToRouteImageButton.bottom) + 30,
                                            width: goToViewHeights,
                                            height: goToViewHeights)
-										   
-		let buttonWidth = 100
+        
+        let buttonWidth = 100
         saveButton.frame = CGRect(x: Int(view.width)/2 - buttonWidth/2,
                                   y: Int(infoLabel.bottom)+30,
-                                       width: buttonWidth,
-                                       height: 50)
+                                  width: buttonWidth,
+                                  height: 50)
         
     }
     
@@ -215,7 +231,7 @@ final class CreatePostViewController: UIViewController {
             if location.altitude > maxElevation{
                 maxElevation = location.altitude
                 maxElevation = maxElevation.rounded(toPlaces: 2)
-
+                
             }
         }
     }
@@ -231,10 +247,10 @@ final class CreatePostViewController: UIViewController {
         
         let post = UserRoute(identifier: "", owner: user, routeMapImage: URL(string: "https://www.google.com")!, velocityGraph: URL(string: "https://www.google.com")!, routeMapThumbnailImage: URL(string: "https://www.google.com")!, routeContent: [Content(imageURL: "", videoURL: "", latitude: "", longitude: "")], routeName: "", routeLength: "", routeDuration: "", city: "Ankara", coordinates: [Coordinate(identifier: "", routeIdentifier: "", latitude: "", longitude: "")], elevations: [Elevation(elevation: 10.0)], speeds: [Speed(speed: 10.0)], likeCount: [RouteLikes(identifier: "", postIdentifier: "", user: user)], comments: [RouteComment(identifier: "", commentIdentifier: "", user: user, text: "", createdDate: Date(), likes: [CommentLikes(identifier: "", commentIdentifier: "", user: user)], replyComment: [RouteComment(identifier: "", commentIdentifier: "", user: user, text: "", createdDate: Date(), likes: [], replyComment: [])])], createdDate: Date(), tagUser: [user], elevationGraph: URL(string: "https://www.google.com")!)
         
-       modal = post
+        modal = post
     }
     
-
+    
 }
 
 extension CreatePostViewController: UITableViewDelegate, UITableViewDataSource{

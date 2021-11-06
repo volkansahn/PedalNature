@@ -288,4 +288,4 @@ final class CityAndNameTableViewCell: UITableViewCell {
         //let mapImageURL = modal.routeMapImage
         //homeImageView.sd_setImage(with: mapImageURL, completed: nil)
     }
-}
+ }

@@ -2,6 +2,12 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string></string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>This app needs to reach microphoe to take video record.</string>
+	<key>NSPrincipalClass</key>
+	<string></string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>This app needs to reach library to save the photo.</string>
 	<key>NSCameraUsageDescription</key>

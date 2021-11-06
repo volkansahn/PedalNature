@@ -34,6 +34,7 @@ final class RouteImageViewController: UIViewController {
         view.addSubview(createRouteTableView)
         createRouteTableView.delegate = self
         createRouteTableView.dataSource = self
+        print(images.count)
     }
 	
 	override func viewDidLayoutSubviews() {

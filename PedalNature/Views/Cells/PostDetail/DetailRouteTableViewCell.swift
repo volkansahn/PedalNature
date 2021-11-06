@@ -151,10 +151,10 @@ final class DetailRouteTableViewCell: UITableViewCell {
         tableView.separatorStyle = .none
         return tableView
     }()
-	public var duration: String
-	public var distance: String
-	public var maxElevation: String
-	public var maxSpeed: String
+	public var duration = ""
+	public var distance = ""
+	public var maxElevation = ""
+	public var maxSpeed = ""
 	
     // MARK: Elevation Graph
     private let elevationGraphContainerImageView : UIImageView = {
@@ -327,7 +327,7 @@ final class DetailRouteTableViewCell: UITableViewCell {
         
         containerView.frame = CGRect(x: contentView.width-20.0-4*tagPhotoSize,
                                      y: homeImageView.bottom - tagPhotoSize-20,
-                                     width: 4*tagPhotoSize+20,
+                                     width: 4*tagPhotoSize,
                                      height: tagPhotoSize+10)
         containerView.layer.cornerRadius = 10
         
@@ -378,7 +378,7 @@ final class DetailRouteTableViewCell: UITableViewCell {
 		
         // MARK: Elevation Graph
         elevationHeader.frame = CGRect(x: 0,
-                                       y: maxElevationLabel.bottom,
+                                       y: routeInfoTableView.bottom,
                                        width: contentView.width/2,
                                        height: contentView.width/4)
         
@@ -518,13 +518,13 @@ extension DetailRouteTableViewCell: UITableViewDelegate, UITableViewDataSource{
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         let cell = tableView.dequeueReusableCell(withIdentifier: CreateRouteInfoTableViewCell.identifier) as! CreateRouteInfoTableViewCell
-        cell.configure(duration: duration!, distance: distance!, maxElevation: String(maxElevation), maxSpeed: String(maxSpeed))
+        cell.configure(duration: duration, distance: distance, maxElevation: String(maxElevation), maxSpeed: String(maxSpeed))
         return cell
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         
-        return view.width
+        return contentView.width
 
     }
     

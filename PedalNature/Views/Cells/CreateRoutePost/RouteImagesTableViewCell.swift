@@ -8,13 +8,14 @@
 import UIKit
 import CoreLocation
 import MapKit
+import AVKit
 
 final class RouteImagesTableViewCell: UITableViewCell {
     //identifier
     static let identifier = "RouteImagesTableViewCell"
-	
+    
     private let mapView = MKMapView()
-
+    
     private let routeImageView : UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFill
@@ -22,8 +23,8 @@ final class RouteImagesTableViewCell: UITableViewCell {
         imageView.backgroundColor = nil
         return imageView
     }()
-	
-	private let mapContainerView : UIView = {
+    
+    private let mapContainerView : UIView = {
         let view = UIView()
         view.backgroundColor = .systemBackground
         view.layer.masksToBounds = true
@@ -31,16 +32,17 @@ final class RouteImagesTableViewCell: UITableViewCell {
         view.alpha = 0.75
         return view
     }()
-	
-	private let routeMapImageView : UIImageView = {
+    
+    private let routeMapImageView : UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
         imageView.backgroundColor = nil
+        imageView.isHidden = true
         return imageView
     }()
-	
-	private let useNotUseImageButton : UIButton = {
+    
+    private let useNotUseImageButton : UIButton = {
         let button = UIButton()
         button.setTitle("Don't Use", for: .normal)
         button.layer.masksToBounds = true
@@ -49,47 +51,68 @@ final class RouteImagesTableViewCell: UITableViewCell {
         button.setTitleColor(.white, for: .normal)
         return button
     }()
-	
-	private let dimmedView: UIView = {
+    
+    private let dimmedView: UIView = {
         let view = UIView()
         view.backgroundColor = .black
         view.isHidden = true
         view.alpha = 0
         return view
     }()
-	
-	override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?){
+    
+    var avPlayer: AVPlayer!
+    let avPlayerController = AVPlayerViewController()
+
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?){
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-		mapView.delegate = self
-		contentView.addSubview(mapContainerView)
-        contentView.addSubview(mapView)
+        mapView.delegate = self
+        avPlayerController.view.isHidden = true
+        avPlayerController.view.clipsToBounds = false
+        //contentView.addSubview(mapContainerView)
         contentView.addSubview(routeImageView)
+        //contentView.addSubview(mapView)
         contentView.addSubview(useNotUseImageButton)
-		contentView.addSubview(dimmedView)
+        contentView.addSubview(dimmedView)
+        
     }
     
-	@objc func useNotUseImageButtonPressed(){
-		
-		if useNotUseImageButton.currentTitle == "Don't Use"{
-			dimmedView.isHidden = false
-			UIView.animate(withDuration: 0.2) {
-				self.dimmedView.alpha = 0.5
-			}
-			button.setTitle("Use", for: .normal)
-			button.backgroundColor = UIColor(rgb: 0x5da973)
-		}else{
-			UIView.animate(withDuration: 0.2, animations: {
-				self.dimmedView.alpha = 0
-			}) { done in
-				if done{
-					self.dimmedView.isHidden = true
-				}
-			}
-			button.setTitle("Don't Use", for: .normal)
-			button.backgroundColor = UIColor.red
-		}
-	}
-	
+    private func preparePlayer(with fileURL: URL) {
+        
+        avPlayer = AVPlayer(url: fileURL)
+        
+        avPlayerController.player = avPlayer
+        avPlayerController.view.frame = routeImageView.frame
+        
+        // Turn on video controlls
+        avPlayerController.showsPlaybackControls = true
+        
+        // play video
+        avPlayerController.player?.play()
+        self.contentView.addSubview(avPlayerController.view)
+    }
+    
+    @objc func useNotUseImageButtonPressed(){
+        
+        if useNotUseImageButton.currentTitle == "Don't Use"{
+            dimmedView.isHidden = false
+            UIView.animate(withDuration: 0.2) {
+                self.dimmedView.alpha = 0.5
+            }
+            useNotUseImageButton.setTitle("Use", for: .normal)
+            useNotUseImageButton.backgroundColor = UIColor(rgb: 0x5da973)
+        }else{
+            UIView.animate(withDuration: 0.2, animations: {
+                self.dimmedView.alpha = 0
+            }) { done in
+                if done{
+                    self.dimmedView.isHidden = true
+                }
+            }
+            useNotUseImageButton.setTitle("Don't Use", for: .normal)
+            useNotUseImageButton.backgroundColor = UIColor.red
+        }
+    }
+    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -97,39 +120,57 @@ final class RouteImagesTableViewCell: UITableViewCell {
     override func layoutSubviews() {
         super.layoutSubviews()
         routeImageView.frame = CGRect(x: 0,
-                                       y: 0,
-                                       width: contentView.width,
-                                       height: 9*contentView.height/10)
-		let mapContainerHeight = 50
-		let mapContainerWidth = 100
-									   
+                                      y: 0,
+                                      width: contentView.width,
+                                      height: 9*contentView.height/10)
+        
+        let mapContainerHeight = 50
+        let mapContainerWidth = 100
+        
         mapContainerView.frame = CGRect(x: Int(routeImageView.width)-mapContainerWidth-20,
                                         y: Int(routeImageView.bottom) - mapContainerHeight-20,
-                                     width: mapContainerWidth,
-                                     height: mapContainerHeight)
-									 
+                                        width: mapContainerWidth,
+                                        height: mapContainerHeight)
+        
         mapView.frame = CGRect(x: Int(mapContainerView.left) + 5,
                                y: Int(mapContainerView.top) + 5,
-                                     width: mapContainerWidth-10,
-                                     height: mapContainerHeight-10)
-		
+                               width: mapContainerWidth-10,
+                               height: mapContainerHeight-10)
+        
         let buttonWidth = 100
-        notUseImageButton.frame = CGRect(x: contentView.width/2 - CGFloat(buttonWidth/2),
-                                       y: CGFloat(routeImageView.bottom + 30),
-                                         width: CGFloat(buttonWidth),
-                                       height: contentView.height/10)
-									   
-		dimmedView.frame = routeImageView.frame
-
+        useNotUseImageButton.frame = CGRect(x: contentView.width/2 - CGFloat(buttonWidth/2),
+                                            y: CGFloat(routeImageView.bottom + 30),
+                                            width: CGFloat(buttonWidth),
+                                            height: contentView.height/10)
+        
+        dimmedView.frame = routeImageView.frame
+        
     }
-
+    
     public func configure(image: RouteImage, locationCoordinates: [CLLocationCoordinate2D], locations : [CLLocation]){
         
-		routeImageView.image = image.image
+        if image.image != nil{
+            routeMapImageView.isHidden = false
+            avPlayerController.view.isHidden = true
+            routeImageView.image = image.image
+            
+        }else if image.videoURL != nil{
+            routeMapImageView.isHidden = true
+            avPlayerController.view.isHidden = false
+            preparePlayer(with: image.videoURL!)
+        }
         
-		//mapView configure
-		let coordinates = Array(locationCoordinates[3..<locationCoordinates.count])
-        let syncedLocations = Array(locations[3..<locations.count])
+        //mapView configure
+        var coordinates = [CLLocationCoordinate2D]()
+        var syncedLocations = [CLLocation]()
+        
+        if locationCoordinates.count > 4 && locations.count > 4{
+            coordinates = Array(locationCoordinates[3..<locationCoordinates.count])
+            syncedLocations = Array(locations[3..<locations.count])
+        }else{
+            coordinates = Array(locationCoordinates[3..<locationCoordinates.count])
+            syncedLocations = Array(locations[3..<locations.count])
+        }
         let polyline = MKGeodesicPolyline(coordinates: coordinates, count: coordinates.count)
         mapView.addOverlay(polyline)
         let midLocation = coordinates[(coordinates.count/2)]
@@ -147,10 +188,10 @@ final class RouteImagesTableViewCell: UITableViewCell {
         
         addAnnotations(image : image)
         return
-       
+        
     }
-	
-	private func addAnnotations(image : RouteImage){
+    
+    private func addAnnotations(image : RouteImage){
         
         let annotation = MKPointAnnotation()
         annotation.coordinate = image.coordinate
@@ -174,7 +215,7 @@ extension RouteImagesTableViewCell: MKMapViewDelegate{
     
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
         
-		let annotationView = MKMarkerAnnotationView(annotation: annotation, reuseIdentifier: "MyMarker")
+        let annotationView = MKMarkerAnnotationView(annotation: annotation, reuseIdentifier: "MyMarker")
         annotationView.titleVisibility = .hidden
         annotationView.markerTintColor = UIColor(rgb: 0xe7e7e7)
         annotationView.glyphImage = UIImage(named: "Image")

@@ -7,6 +7,7 @@ The app's photo capture delegate object.
 
 import AVFoundation
 import Photos
+import UIKit
 
 class PhotoCaptureProcessor: NSObject {
     private(set) var requestedPhotoSettings: AVCapturePhotoSettings
@@ -28,8 +29,11 @@ class PhotoCaptureProcessor: NSObject {
     private var portraitEffectsMatteData: Data?
     
     private var semanticSegmentationMatteDataArray = [Data]()
+    
     private var maxPhotoProcessingTime: CMTime?
-
+    
+    public var routeImage : RouteImage?
+    
     // Save the location of captured photos
     var location: CLLocation?
 
@@ -65,75 +69,6 @@ extension PhotoCaptureProcessor: AVCapturePhotoCaptureDelegate {
      This extension adopts all of the AVCapturePhotoCaptureDelegate protocol methods.
      */
     
-    /// - Tag: WillBeginCapture
-    func photoOutput(_ output: AVCapturePhotoOutput, willBeginCaptureFor resolvedSettings: AVCaptureResolvedPhotoSettings) {
-        if resolvedSettings.livePhotoMovieDimensions.width > 0 && resolvedSettings.livePhotoMovieDimensions.height > 0 {
-            livePhotoCaptureHandler(true)
-        }
-        maxPhotoProcessingTime = resolvedSettings.photoProcessingTimeRange.start + resolvedSettings.photoProcessingTimeRange.duration
-    }
-    
-    /// - Tag: WillCapturePhoto
-    func photoOutput(_ output: AVCapturePhotoOutput, willCapturePhotoFor resolvedSettings: AVCaptureResolvedPhotoSettings) {
-        willCapturePhotoAnimation()
-        
-        guard let maxPhotoProcessingTime = maxPhotoProcessingTime else {
-            return
-        }
-        
-        // Show a spinner if processing time exceeds one second.
-        let oneSecond = CMTime(seconds: 1, preferredTimescale: 1)
-        if maxPhotoProcessingTime > oneSecond {
-            photoProcessingHandler(true)
-        }
-    }
-    
-    func handleMatteData(_ photo: AVCapturePhoto, ssmType: AVSemanticSegmentationMatte.MatteType) {
-        
-        // Find the semantic segmentation matte image for the specified type.
-        guard var segmentationMatte = photo.semanticSegmentationMatte(for: ssmType) else { return }
-        
-        // Retrieve the photo orientation and apply it to the matte image.
-        if let orientation = photo.metadata[String(kCGImagePropertyOrientation)] as? UInt32,
-            let exifOrientation = CGImagePropertyOrientation(rawValue: orientation) {
-            // Apply the Exif orientation to the matte image.
-            segmentationMatte = segmentationMatte.applyingExifOrientation(exifOrientation)
-        }
-        
-        var imageOption: CIImageOption!
-        
-        // Switch on the AVSemanticSegmentationMatteType value.
-        switch ssmType {
-        case .hair:
-            imageOption = .auxiliarySemanticSegmentationHairMatte
-        case .skin:
-            imageOption = .auxiliarySemanticSegmentationSkinMatte
-        case .teeth:
-            imageOption = .auxiliarySemanticSegmentationTeethMatte
-        case .glasses:
-            imageOption = .auxiliarySemanticSegmentationGlassesMatte
-        default:
-            print("This semantic segmentation type is not supported!")
-            return
-        }
-        
-        guard let perceptualColorSpace = CGColorSpace(name: CGColorSpace.sRGB) else { return }
-        
-        // Create a new CIImage from the matte's underlying CVPixelBuffer.
-        let ciImage = CIImage( cvImageBuffer: segmentationMatte.mattingImage,
-                               options: [imageOption: true,
-                                         .colorSpace: perceptualColorSpace])
-        
-        // Get the HEIF representation of this image.
-        guard let imageData = context.heifRepresentation(of: ciImage,
-                                                         format: .RGBA8,
-                                                         colorSpace: perceptualColorSpace,
-                                                         options: [.depthImage: ciImage]) else { return }
-        
-        // Add the image data to the SSM data array for writing to the photo library.
-        semanticSegmentationMatteDataArray.append(imageData)
-    }
-    
     /// - Tag: DidFinishProcessingPhoto
     func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
         photoProcessingHandler(false)
@@ -143,44 +78,10 @@ extension PhotoCaptureProcessor: AVCapturePhotoCaptureDelegate {
             return
         } else {
             photoData = photo.fileDataRepresentation()
+            let image = RouteImage(image: UIImage(data: photoData!)!, videoURL: nil, coordinate: location!.coordinate)
+            self.routeImage = image
         }
-        // A portrait effects matte gets generated only if AVFoundation detects a face.
-        if var portraitEffectsMatte = photo.portraitEffectsMatte {
-            if let orientation = photo.metadata[ String(kCGImagePropertyOrientation) ] as? UInt32 {
-                portraitEffectsMatte = portraitEffectsMatte.applyingExifOrientation(CGImagePropertyOrientation(rawValue: orientation)!)
-            }
-            let portraitEffectsMattePixelBuffer = portraitEffectsMatte.mattingImage
-            let portraitEffectsMatteImage = CIImage( cvImageBuffer: portraitEffectsMattePixelBuffer, options: [ .auxiliaryPortraitEffectsMatte: true ] )
-            
-            guard let perceptualColorSpace = CGColorSpace(name: CGColorSpace.sRGB) else {
-                portraitEffectsMatteData = nil
-                return
-            }
-            portraitEffectsMatteData = context.heifRepresentation(of: portraitEffectsMatteImage,
-                                                                  format: .RGBA8,
-                                                                  colorSpace: perceptualColorSpace,
-                                                                  options: [.portraitEffectsMatteImage: portraitEffectsMatteImage])
-        } else {
-            portraitEffectsMatteData = nil
-        }
-        
-        for semanticSegmentationType in output.enabledSemanticSegmentationMatteTypes {
-            handleMatteData(photo, ssmType: semanticSegmentationType)
-        }
-    }
     
-    /// - Tag: DidFinishRecordingLive
-    func photoOutput(_ output: AVCapturePhotoOutput, didFinishRecordingLivePhotoMovieForEventualFileAt outputFileURL: URL, resolvedSettings: AVCaptureResolvedPhotoSettings) {
-        livePhotoCaptureHandler(false)
-    }
-    
-    /// - Tag: DidFinishProcessingLive
-    func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingLivePhotoToMovieFileAt outputFileURL: URL, duration: CMTime, photoDisplayTime: CMTime, resolvedSettings: AVCaptureResolvedPhotoSettings, error: Error?) {
-        if error != nil {
-            print("Error processing Live Photo companion movie: \(String(describing: error))")
-            return
-        }
-        livePhotoCompanionMovieURL = outputFileURL
     }
     
     /// - Tag: DidFinishCapture
@@ -196,7 +97,7 @@ extension PhotoCaptureProcessor: AVCapturePhotoCaptureDelegate {
             didFinish()
             return
         }
-
+        
         PHPhotoLibrary.requestAuthorization { status in
             if status == .authorized {
                 PHPhotoLibrary.shared().performChanges({

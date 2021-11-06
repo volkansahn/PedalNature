@@ -30,7 +30,12 @@ final class DetailedRouteViewController: UIViewController {
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        postDetailTableView.frame = view.bounds
+        let bottomHeight = view.safeAreaLayoutGuide.layoutFrame.size.height
+
+        postDetailTableView.frame = CGRect(x: 0,
+                                           y: view.safeAreaInsets.top,
+                                           width: view.width,
+                                           height: bottomHeight)
         
     }
     
@@ -70,7 +75,7 @@ extension DetailedRouteViewController: UITableViewDelegate, UITableViewDataSourc
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 65 + 3*view.width + 80 + 100
+        return 4*view.width + 150
     }
   
 }

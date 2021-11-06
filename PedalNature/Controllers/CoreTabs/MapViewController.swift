@@ -17,14 +17,14 @@ final class MapViewController: UIViewController {
     private var timer = Timer()
     private var counter = 0
 
-    private let stopButtonSize = 100.0
+    public let stopButtonSize = 100.0
     private let goButtonSize = 100.0
     
     private let labelHeight = 40.0
     private let headerHeight = 25.0
     private var locationArray = [CLLocation]()
     private var locationCoordinateArray = [CLLocationCoordinate2D]()
-    private var images = [RouteImage]()
+    public var listOfContent = [RouteImage]()
     public var duration : String?
     public var distance : String?
     public var isPauseDone = false
@@ -146,7 +146,7 @@ final class MapViewController: UIViewController {
         return button
     }()
     
-    private var playButton : UIButton = {
+    public var playButton : UIButton = {
         let button = UIButton()
         button.setImage(UIImage(systemName: "play.fill"), for: .normal)
         button.backgroundColor = .white
@@ -155,7 +155,7 @@ final class MapViewController: UIViewController {
         return button
     }()
     
-    private var endButton : UIButton = {
+    public var endButton : UIButton = {
         let button = UIButton()
         button.setImage(UIImage(systemName: "stop.fill"), for: .normal)
         button.backgroundColor = .white
@@ -190,6 +190,8 @@ final class MapViewController: UIViewController {
         
     private let locationManager = CLLocationManager()
     
+    public var cameraReturn = Bool()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.addSubview(mapView)
@@ -208,6 +210,7 @@ final class MapViewController: UIViewController {
         view.addSubview(timeHeaderLabel)
         view.addSubview(speedHeaderLabel)
         view.addSubview(cameraButton)
+       
         mapView.layer.masksToBounds = true
         mapView.overrideUserInterfaceStyle = .dark
         locationManager.delegate = self
@@ -224,8 +227,17 @@ final class MapViewController: UIViewController {
 
         cameraButton.addTarget(self,
                                action: #selector(cameraPressed), for: .touchUpInside)
-        
+     
     }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        
+        if cameraReturn{
+            self.endButton.center.x = self.stopButtonSize/2 + 20
+            self.playButton.center.x = self.view.width-self.stopButtonSize/2-20
+        }
+    }
+        
     
     @objc func cameraPressed(){
         pausePressed()
@@ -305,7 +317,7 @@ final class MapViewController: UIViewController {
         vc.locations = locationArray
         vc.distance = distance
         vc.duration = duration
-        vc.images = images
+        vc.images = listOfContent
         vc.locationCoordinates = locationCoordinateArray
         self.navigationController?.pushViewController(vc, animated: true)
         UIApplication.shared.isIdleTimerDisabled = false
@@ -569,54 +581,6 @@ extension MapViewController: CLLocationManagerDelegate{
                 self.distance = "\(distanceFromStart)"
             }
             
-        }
-    }
-}
-
-extension MapViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate{
-    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
-        picker.dismiss(animated:true, completion: {
-            self.endButton.center.x = self.stopButtonSize/2 + 20
-            self.playButton.center.x = self.view.width-self.stopButtonSize/2-20
-        })
-
-    }
-    
-    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-        
-        guard let image = info[.editedImage] as? UIImage else {
-            print("No image found")
-            return
-        }
-        
-        picker.dismiss(animated:true, completion: {
-            self.endButton.center.x = self.stopButtonSize/2 + 20
-            self.playButton.center.x = self.view.width-self.stopButtonSize/2-20
-
-            // Create Image Array
-            let routeImage = RouteImage(image: image, coordinate: self.locationCoordinateArray.last!)
-            self.images.append(routeImage)
-            let actionSheet = UIAlertController(title: "Save Photo?", message: "Would you like to save image to library ?", preferredStyle: .actionSheet)
-            actionSheet.addAction(UIAlertAction(title: "Save", style: .default, handler: { _ in
-                UIImageWriteToSavedPhotosAlbum(image, self, #selector(self.image(_:didFinishSavingWithError:contextInfo:)), nil)
-                
-            }))
-            actionSheet.addAction(UIAlertAction(title: "No", style: .destructive, handler: { _ in         picker.dismiss(animated: true)
-            }))
-            self.present(actionSheet,animated: true)
-        })
-    }
-    
-    @objc func image(_ image: UIImage, didFinishSavingWithError error: Error?, contextInfo: UnsafeRawPointer) {
-        if let error = error {
-            // we got back an error!
-            let ac = UIAlertController(title: "Save error", message: error.localizedDescription, preferredStyle: .alert)
-            ac.addAction(UIAlertAction(title: "OK", style: .default))
-            present(ac, animated: true)
-        } else {
-            let ac = UIAlertController(title: "Saved!", message: "Your image has been saved to your photos.", preferredStyle: .alert)
-            ac.addAction(UIAlertAction(title: "OK", style: .default))
-            present(ac, animated: true)
         }
     }
 }

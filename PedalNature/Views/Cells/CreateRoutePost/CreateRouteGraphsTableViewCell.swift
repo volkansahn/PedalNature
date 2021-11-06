@@ -126,23 +126,23 @@ extension CreateRouteGraphsTableViewCell: MKMapViewDelegate{
         annotationView.titleVisibility = .hidden
         switch annotation.title!! {
         case "Start":
-            annotationView.markerTintColor = UIColor(rgb: 0xe7e7e7)
+            //annotationView.markerTintColor = UIColor(rgb: 0xe7e7e7)
             annotationView.glyphImage = UIImage(named: "Start")
             annotationView.glyphImage!.withRenderingMode(.alwaysOriginal)
         case "End":
-            annotationView.markerTintColor = UIColor(rgb: 0xe7e7e7)
+            //annotationView.markerTintColor = UIColor(rgb: 0xe7e7e7)
             annotationView.glyphImage = UIImage(named: "End")
             annotationView.glyphImage!.withRenderingMode(.alwaysOriginal)
         case "MaxElevation":
-            annotationView.markerTintColor = UIColor(rgb: 0xe7e7e7)
+            //annotationView.markerTintColor = UIColor(rgb: 0xe7e7e7)
             annotationView.glyphImage = UIImage(named: "MaxElevation")
             annotationView.glyphImage!.withRenderingMode(.alwaysOriginal)
         case "MaxSpeed":
-            annotationView.markerTintColor = UIColor(rgb: 0xe7e7e7)
+            //annotationView.markerTintColor = UIColor(rgb: 0xe7e7e7)
             annotationView.glyphImage = UIImage(named: "MaxSpeed")
             annotationView.glyphImage!.withRenderingMode(.alwaysOriginal)
         case "Image":
-            annotationView.markerTintColor = UIColor(rgb: 0xe7e7e7)
+            //annotationView.markerTintColor = UIColor(rgb: 0xe7e7e7)
             annotationView.glyphImage = UIImage(named: "Image")
             annotationView.glyphImage!.withRenderingMode(.alwaysOriginal)
         default:
