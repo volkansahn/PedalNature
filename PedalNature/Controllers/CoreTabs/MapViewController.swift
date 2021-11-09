@@ -27,7 +27,6 @@ final class MapViewController: UIViewController {
     public var listOfContent = [RouteImage]()
     public var duration : String?
     public var distance : String?
-    public var isPauseDone = false
     
     private let cameraButton : UIButton = {
         let button = UIButton()
@@ -184,7 +183,7 @@ final class MapViewController: UIViewController {
         // set attributed text on a UILabel
         button.setAttributedTitle(myAttrString, for: .normal)
         
-        button.isHidden = true
+        button.isHidden = false
         return button
     }()
         
@@ -194,89 +193,72 @@ final class MapViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.addSubview(mapView)
-        view.addSubview(buttonContainerView)
-        view.addSubview(goButton)
-        view.addSubview(endButton)
-        view.addSubview(pauseButton)
-        view.addSubview(playButton)
-        view.addSubview(pauseLabel)
-        view.addSubview(distanceLabel)
-        view.addSubview(elevationLabel)
-        view.addSubview(timeLabel)
-        view.addSubview(speedLabel)
-        view.addSubview(distanceHeaderLabel)
-        view.addSubview(elevationHeaderLabel)
-        view.addSubview(timeHeaderLabel)
-        view.addSubview(speedHeaderLabel)
-        view.addSubview(cameraButton)
-       
-        mapView.layer.masksToBounds = true
-        mapView.overrideUserInterfaceStyle = .dark
-        locationManager.delegate = self
-        askLocationPermission()
-        goButton.addTarget(self,
-                           action: #selector(startActivity), for: .touchUpInside)
-        endButton.addTarget(self,
-                            action: #selector(endPressed), for: .touchUpInside)
-        playButton.addTarget(self,
-                             action: #selector(playPressed), for: .touchUpInside)
-     
-        //pauseButton.addTarget(self, action: #selector(holdDown), for: .touchDown)
-        pauseButton.addTarget(self,action: #selector(pausePressed), for: .touchUpInside)
-
-        cameraButton.addTarget(self,
-                               action: #selector(cameraPressed), for: .touchUpInside)
-     
+        
     }
     
-    override func viewDidAppear(_ animated: Bool) {
-        
-        if cameraReturn{
-            self.endButton.center.x = self.stopButtonSize/2 + 20
-            self.playButton.center.x = self.view.width-self.stopButtonSize/2-20
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        print(cameraReturn)
+        if cameraReturn == false{
+            view.addSubview(mapView)
+            view.addSubview(buttonContainerView)
+            view.addSubview(goButton)
+            view.addSubview(endButton)
+            view.addSubview(pauseButton)
+            view.addSubview(playButton)
+            view.addSubview(pauseLabel)
+            view.addSubview(distanceLabel)
+            view.addSubview(elevationLabel)
+            view.addSubview(timeLabel)
+            view.addSubview(speedLabel)
+            view.addSubview(distanceHeaderLabel)
+            view.addSubview(elevationHeaderLabel)
+            view.addSubview(timeHeaderLabel)
+            view.addSubview(speedHeaderLabel)
+            view.addSubview(cameraButton)
+            print("return")
+            counter = 0
+            locationArray = [CLLocation]()
+            locationCoordinateArray = [CLLocationCoordinate2D]()
+            listOfContent = [RouteImage]()
+            duration = ""
+            distance = ""
+            mapView.layer.masksToBounds = true
+            mapView.overrideUserInterfaceStyle = .dark
+            locationManager.delegate = self
+            askLocationPermission()
+            goButton.addTarget(self,
+                               action: #selector(startActivity), for: .touchUpInside)
+            endButton.addTarget(self,
+                                action: #selector(endPressed), for: .touchUpInside)
+            playButton.addTarget(self,
+                                 action: #selector(playPressed), for: .touchUpInside)
+         
+            pauseButton.addTarget(self,action: #selector(pausePressed), for: .touchUpInside)
+
+            cameraButton.addTarget(self,
+                                   action: #selector(cameraPressed), for: .touchUpInside)
+        }else{
+            
+            goButton.isHidden = true
+            endButton.center.x = self.stopButtonSize/2 + 20
+            playButton.center.x = self.view.width-self.stopButtonSize/2-20
+            cameraReturn = false
         }
     }
-        
     
     @objc func cameraPressed(){
         pausePressed()
 		let vc = CameraViewController()
         vc.modalPresentationStyle = .fullScreen
         self.navigationController?.pushViewController(vc, animated: true)
-		
-        /* let vc = UIImagePickerController()
-        vc.sourceType = .camera
-        vc.allowsEditing = true
-        vc.delegate = self
-        present(vc, animated: true) */
-    }
-    
-    @objc func holdDown(){
-
-        let shapeLayer = CAShapeLayer()
-        let center = pauseButton.center
-        let circularPath = UIBezierPath(arcCenter: center, radius: pauseButton.width, startAngle: -CGFloat.pi / 2, endAngle: 2 * CGFloat.pi, clockwise: true)
-        shapeLayer.path = circularPath.cgPath
-        shapeLayer.strokeColor = UIColor.red.cgColor
-        shapeLayer.lineWidth = 10
-        shapeLayer.strokeEnd = 0
-        pauseButton.layer.addSublayer(shapeLayer)
-
-        let basicAnimation = CABasicAnimation(keyPath: "strokeEnd")
-        basicAnimation.toValue = 1
-        basicAnimation.duration = 2
-        basicAnimation.fillMode = CAMediaTimingFillMode.forwards
-        basicAnimation.isRemovedOnCompletion = false
-        shapeLayer.add(basicAnimation, forKey: "basic")
-        
     }
                        
     @objc func pausePressed(){
-
         pauseButton.fadeOut()
         self.locationManager.stopUpdatingLocation()
         timer.invalidate()
+        goButton.isHidden = true
         endButton.center.x = pauseButton.center.x
         playButton.center.x = pauseButton.center.x
         UIView.animate(withDuration: 0.5,
@@ -312,15 +294,34 @@ final class MapViewController: UIViewController {
     @objc func endPressed(){
         self.locationManager.stopUpdatingLocation()
         timer.invalidate()
+        goButton.isHidden = false
+        timeLabel.isHidden = true
+        elevationLabel.isHidden = true
+        speedLabel.isHidden = true
+        distanceLabel.isHidden = true
+        timeHeaderLabel.isHidden = true
+        elevationHeaderLabel.isHidden = true
+        speedHeaderLabel.isHidden = true
+        distanceHeaderLabel.isHidden = true
+        cameraButton.isHidden = true
+        self.tabBarController?.tabBar.isHidden = false
+        pauseButton.isHidden = true
+        buttonContainerView.isHidden = true
+        endButton.isHidden = true
+        playButton.isHidden = true
+        pauseLabel.isHidden = true
+        
         let vc = CreatePostViewController()
         vc.title = "Create Post"
         vc.locations = locationArray
         vc.distance = distance
         vc.duration = duration
         vc.images = listOfContent
+        vc.totalCount = counter
         vc.locationCoordinates = locationCoordinateArray
         self.navigationController?.pushViewController(vc, animated: true)
         UIApplication.shared.isIdleTimerDisabled = false
+        
     }
     
     @objc func playPressed(){
@@ -575,8 +576,8 @@ extension MapViewController: CLLocationManagerDelegate{
             self.elevationLabel.text = String(elevation)+"m"
             self.speedLabel.text = String(speed)+"m/sn"
             
-            if self.locationArray.count > 0{
-                let distanceFromStart = (location.distance(from: self.locationArray.first!)/1000).rounded(toPlaces: 2)
+            if self.locationArray.count > 4{
+                let distanceFromStart = (location.distance(from: self.locationArray[3])/1000).rounded(toPlaces: 2)
                 self.distanceLabel.text = String(distanceFromStart)+"km"
                 self.distance = "\(distanceFromStart)"
             }

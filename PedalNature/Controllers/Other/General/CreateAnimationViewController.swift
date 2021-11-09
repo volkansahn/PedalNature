@@ -25,15 +25,9 @@ class CreateAnimationViewController: UIViewController {
     public var route = [CLLocationCoordinate2D]()
     public var locations = [CLLocation]()
     public var images = [RouteImage]()
-    public var duration = 10.0
-    lazy var syncedLocations = Array(locations[3..<locations.count])
-    
     
     private var annotations = [MKPointAnnotation]()
     private var annotationCoords = [CLLocationCoordinate2D]()
-    
-    var currentStep = 1
-    private var timer = Timer()
     
     private var showLabel : UILabel = {
         let label = UILabel()
@@ -48,9 +42,9 @@ class CreateAnimationViewController: UIViewController {
     }()
     
     private let ContainerView : UIView = {
-            let view = UIView()
-            return view
-        }()
+        let view = UIView()
+        return view
+    }()
     
     //Changed
     let selectionLabel = ["Speed Gauge", "Elevation Graph", "Duration", "Distance"]
@@ -61,6 +55,8 @@ class CreateAnimationViewController: UIViewController {
         tableView.isScrollEnabled = false
         return tableView
     }()
+    
+    
     
     private let actionContainerView : UIView = {
         let view = UIView()
@@ -115,6 +111,38 @@ class CreateAnimationViewController: UIViewController {
     let buttonWidth = 100.0
     lazy var bottomHeight = view.safeAreaLayoutGuide.layoutFrame.size.height
     
+    public var duration = 10.0
+    var currentStep = 1
+    private var timer = Timer()
+    var counter = 0
+    var totalCount = 0.0
+    public var durationTimer : String?
+    public var isFinished = false
+    
+    private let elevationChartView : LineChartView = {
+        let lineChartView = LineChartView()
+        lineChartView.isHidden = true
+        lineChartView.backgroundColor = .none
+        lineChartView.alpha = 0.6
+        lineChartView.legend.enabled = false
+        lineChartView.rightAxis.enabled = false
+        lineChartView.isUserInteractionEnabled = false
+        lineChartView.drawBordersEnabled = false
+        
+        let yAxis = lineChartView.leftAxis
+        yAxis.drawLabelsEnabled = false
+        yAxis.drawAxisLineEnabled = false
+        yAxis.drawGridLinesEnabled = false
+        
+        lineChartView.xAxis.labelPosition = .bottom
+        lineChartView.xAxis.drawLabelsEnabled = false
+        lineChartView.xAxis.drawAxisLineEnabled = false
+        lineChartView.xAxis.drawGridLinesEnabled = false
+        return lineChartView
+    }()
+    public var isElevationAvailable = false
+    public var ElevationEntries = [ChartDataEntry]()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
@@ -125,15 +153,13 @@ class CreateAnimationViewController: UIViewController {
         view.addSubview(actionContainerView)
         view.addSubview(animationSelectionTableView)
         view.addSubview(speedGaugeLabel)
-        view.addSubview(elevationGraphLabel)
+        view.addSubview(elevationChartView)
         view.addSubview(durationIndicatorLabel)
         view.addSubview(distanceIndicatorLabel)
         view.addSubview(shareButton)
         animationSelectionTableView.delegate = self
         animationSelectionTableView.dataSource = self
         
-        
-        route = Array(route[3..<route.count])
         center(onRoute: route, fromDistance: 10)
         //MapView
         animatedMapView.delegate = self
@@ -146,9 +172,9 @@ class CreateAnimationViewController: UIViewController {
         maxEleLocationCoordinate = locations.first!.coordinate
         maxSpeedLocationCoordinate = locations.first!.coordinate
         
-        if locations.count > 4{
-            findMaxEleAndSpeedCoordinates(locations : syncedLocations)
-        }
+        
+        findMaxEleAndSpeedCoordinates(locations : locations)
+        
         
         //Create Annotation
         createAnnotations(locationCoordinates : route, images : images)
@@ -170,25 +196,25 @@ class CreateAnimationViewController: UIViewController {
         let ContainerViewHeight = 320.0
         let tableViewHeight = 200.0
         ContainerView.frame = CGRect(x: 0,
-                                       y: animatedMapView.bottom,
-                                       width: view.width,
+                                     y: animatedMapView.bottom,
+                                     width: view.width,
                                      height: ContainerViewHeight)
-
+        
         shareButton.frame = CGRect(x: view.width/2.0 - buttonWidth/2.0,
-                                       y: ContainerView.bottom - 20.0 - buttonHeight,
-                                       width: buttonWidth,
-                                       height: buttonHeight)
-
+                                   y: ContainerView.bottom - 20.0 - buttonHeight,
+                                   width: buttonWidth,
+                                   height: buttonHeight)
+        
         actionContainerView.frame = CGRect(x: ContainerView.left + 20.0,
-                                       y: ContainerView.top + 20.0,
-                                       width: ContainerView.width - 40.0,
+                                           y: ContainerView.top + 20.0,
+                                           width: ContainerView.width - 40.0,
                                            height: tableViewHeight)
         actionContainerView.layer.cornerRadius = 16.0
         
         animationSelectionTableView.frame = CGRect(x: actionContainerView.left + 10.0,
-                                       y: actionContainerView.top,
-                                       width: actionContainerView.width - 20.0,
-                                       height: tableViewHeight)
+                                                   y: actionContainerView.top,
+                                                   width: actionContainerView.width - 20.0,
+                                                   height: tableViewHeight)
         let labelWidth = 80
         let labelHeight = 52
         speedGaugeLabel.frame = CGRect(x: Int(animatedMapView.right) - 20 - labelWidth,
@@ -196,10 +222,10 @@ class CreateAnimationViewController: UIViewController {
                                        width: labelWidth,
                                        height: labelHeight)
         
-        elevationGraphLabel.frame = CGRect(x: Int(animatedMapView.left) + 20,
-                                           y: Int(animatedMapView.top) + 20,
-                                           width: labelWidth,
-                                           height: labelHeight)
+        elevationChartView.frame = CGRect(x: Int(animatedMapView.left) + 5,
+                                          y: Int(animatedMapView.top) + 20,
+                                          width: Int(view.width)/2,
+                                          height: 50)
         
         distanceIndicatorLabel.frame = CGRect(x:  Int(animatedMapView.left) + 20,
                                               y: Int(animatedMapView.bottom) - 20 - labelHeight,
@@ -217,12 +243,14 @@ class CreateAnimationViewController: UIViewController {
         let actionSheet = UIAlertController(title: "Cancel Sharing Route", message: "Do you want to Cancel Sharing Route.", preferredStyle: .actionSheet)
         actionSheet.addAction(UIAlertAction(title: "Yes", style: .destructive, handler: { _ in
             self.dismiss(animated: true) {
+                self.navigationController?.popToRootViewController(animated: true)
+                
                 self.tabBarController?.tabBar.isHidden = false
                 self.tabBarController?.selectedIndex = 0
             }
         }))
         actionSheet.addAction(UIAlertAction(title: "Dismiss", style: .cancel, handler: nil))
-
+        
         present(actionSheet, animated: true, completion: nil)
     }
     
@@ -259,12 +287,12 @@ class CreateAnimationViewController: UIViewController {
     private func findMaxEleAndSpeedCoordinates(locations : [CLLocation]){
         for location in locations {
             if location.speed > maxSpeed{
-                maxSpeed = location.speed
+                maxSpeed = location.speed.rounded(toPlaces: 2)
                 maxSpeedLocationCoordinate = location.coordinate
             }
             
             if location.altitude > maxElevation{
-                maxElevation = location.altitude
+                maxElevation = location.altitude.rounded(toPlaces: 2)
                 maxEleLocationCoordinate = location.coordinate
             }
             
@@ -284,12 +312,22 @@ private extension CreateAnimationViewController {
         
         let totalSteps = route.count
         let stepDrawDuration = duration/TimeInterval(totalSteps)
+        print("stepDrawDuration : \(stepDrawDuration)")
         timer = Timer.scheduledTimer(timeInterval: stepDrawDuration, target: self, selector: #selector(animate), userInfo: nil, repeats: true)
         
     }
     
     @objc func animate(){
-        animatedMapView.setCamera(MKMapCamera(lookingAtCenter: route[currentStep-1], fromDistance: 2500, pitch: 0, heading: 0), animated: true)
+        //Duration
+        counter = counter + Int((totalCount/duration)*(duration/Double(route.count)))
+        let second = counter%60
+        let minutes = counter/60
+        let hours = counter/3600
+
+        durationIndicatorLabel.text = String(format: "%02d:%02d:%02d", hours, minutes, second)
+        
+        animatedMapView.setCamera(MKMapCamera(lookingAtCenter: route[currentStep-1], fromDistance: 200, pitch: 0, heading: 0), animated: true)
+        
         let totalSteps = route.count
         var previousSegment: MKPolyline?
         
@@ -303,8 +341,8 @@ private extension CreateAnimationViewController {
             // If this is the last animation step...
             let finalPolyline = MKPolyline(coordinates: route, count: route.count)
             animatedMapView.addOverlay(finalPolyline)
-            let location = syncedLocations.last!
-            let distanceFromStart = location.distance(from: self.syncedLocations.first!)/1000.rounded(toPlaces: 2)
+            let location = locations.last!
+            let distanceFromStart = location.distance(from: self.locations.first!)/1000.rounded(toPlaces: 2)
             let centerCoor = MKPolyline(coordinates: route, count: route.count).coordinate
             // Assign the final polyline instance to the class property.
             polyline = finalPolyline
@@ -316,12 +354,13 @@ private extension CreateAnimationViewController {
                     self.showLabel.text = "End"
                     self.showLabel.fadeIn()
                     self.animatedMapView.setCamera(MKMapCamera(lookingAtCenter: centerCoor, fromDistance: distanceFromStart*1000, pitch: 0, heading: 0), animated: true)
+                    self.isFinished = true
+                    self.timer.invalidate()
                     
                 }, completion: { [self] finished in
                     if finished{
                         showLabel.fadeOut()
                         animatedMapView.setCamera(MKMapCamera(lookingAtCenter: centerCoor, fromDistance: distanceFromStart*1000, pitch: 0, heading: 0), animated: true)
-                        timer.invalidate()
                     }
                 })
             }
@@ -339,7 +378,7 @@ private extension CreateAnimationViewController {
             timer.invalidate()
             if annotations[index].title == "Start"{
                 DispatchQueue.main.async {
-                    UIView.animate(withDuration: 2.0,
+                    UIView.animate(withDuration: 3.0,
                                    delay: 0.0,
                                    options: [],
                                    animations: {
@@ -415,6 +454,32 @@ private extension CreateAnimationViewController {
                 }
             }
         }
+        //Distance
+        let currentLocation = locations[currentStep-1]
+        let distanceFromStart = (currentLocation.distance(from: locations.first!)/1000).rounded(toPlaces: 2)
+        distanceIndicatorLabel.text = String(distanceFromStart)+"km"
+        
+        //Elevation
+        let entries = Array(ElevationEntries.prefix(upTo: currentStep))
+        if entries.count > 1 && isElevationAvailable{
+            elevationChartView.isHidden = false
+        }else{
+            elevationChartView.isHidden = true
+        }
+        let set1 = LineChartDataSet(entries: entries, label: "")
+        set1.mode = .cubicBezier
+        set1.drawCirclesEnabled = false
+        set1.lineWidth = 0
+        set1.setColor(.white)
+        set1.fill = Fill(color: .systemBlue)
+        set1.fillAlpha = 1.0
+        set1.drawFilledEnabled = true
+        
+        let data = LineChartData(dataSet: set1)
+        data.setDrawValues(false)
+        elevationChartView.data = data
+        
+        
         animatedMapView.addOverlay(currentSegment)
         previousSegment = currentSegment
         currentStep += 1
@@ -473,19 +538,19 @@ extension CreateAnimationViewController: UITableViewDelegate, UITableViewDataSou
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return selectionLabel.count
     }
-
+    
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: AnimationSelectionTableViewCell.identifier) as! AnimationSelectionTableViewCell
         cell.configure(with: selectionLabel[indexPath.row])
         cell.delegate = self
         return cell
-
+        
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 50.0
     }
-
+    
 }
 
 extension CreateAnimationViewController: AnimationSelectionTableViewCellDelegate{
@@ -494,7 +559,7 @@ extension CreateAnimationViewController: AnimationSelectionTableViewCellDelegate
         case "Speed Gauge":
             speedGaugeLabel.isHidden = !state
         case "Elevation Graph":
-            elevationGraphLabel.isHidden = !state
+            isElevationAvailable = state
         case "Duration":
             durationIndicatorLabel.isHidden = !state
         case "Distance":
@@ -503,5 +568,5 @@ extension CreateAnimationViewController: AnimationSelectionTableViewCellDelegate
             fatalError("Shouldn't be here")
         }
     }
-
+    
 }

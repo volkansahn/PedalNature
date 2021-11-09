@@ -8,6 +8,8 @@
 import UIKit
 import MapKit
 import CoreLocation
+import Charts
+
 
 /// Create Post for Share
 /// Reached from Activity Record View
@@ -89,7 +91,14 @@ final class CreatePostViewController: UIViewController {
     
     public var maxElevation = 0.0
     
+    private var maxEleLocationCoordinate : CLLocationCoordinate2D?
+    private var maxSpeedLocationCoordinate : CLLocationCoordinate2D?
+    
     private var modal : UserRoute?
+    
+    public var totalCount = 0
+    
+    private var ElevationEntries = [ChartDataEntry]()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -123,8 +132,30 @@ final class CreatePostViewController: UIViewController {
         self.navigationItem.setHidesBackButton(true, animated: true)
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Don't Save", style: .plain, target: self, action: #selector(cancelTapped))
         configureRouteInfo()
+        
+        if locations.count > 3{
+            locations = Array(locations[3..<locations.count])
+            locationCoordinates = Array(locationCoordinates[3..<locationCoordinates.count])
+        }
+        
+        findElevationData()
+        
+        //Max Elevation and Speed
+        maxEleLocationCoordinate = locations.first!.coordinate
+        maxSpeedLocationCoordinate = locations.first!.coordinate
+        
+        findMaxEleAndSpeedCoordinates(locations : locations)
+
     }
     
+    private func findElevationData(){
+        var elevationCounter = 0.0
+        for location in locations{
+            let entry = ChartDataEntry(x: elevationCounter, y: location.altitude)
+            elevationCounter += 1
+            ElevationEntries.append(entry)
+        }
+    }
     //Tag
     @objc func didTapTagView(){
         let vc = TagPeopleViewController()
@@ -146,8 +177,8 @@ final class CreatePostViewController: UIViewController {
         vc.title = "Route Info"
         vc.duration = duration
         vc.distance = distance
-        vc.maxSpeed = 0.0
-        vc.maxElevation = 0.0
+        vc.maxSpeed = maxSpeed
+        vc.maxElevation = maxElevation
         vc.locations = locations
         self.navigationController?.pushViewController(vc, animated: true)
     }
@@ -162,6 +193,8 @@ final class CreatePostViewController: UIViewController {
             vc.route = self.locationCoordinates
             vc.locations = self.locations
             vc.images = self.images
+            vc.ElevationEntries = self.ElevationEntries
+            vc.totalCount = Double(self.totalCount)
             self.navigationController?.pushViewController(vc, animated: true)
         }))
         self.present(alert, animated: true, completion: nil)
@@ -172,6 +205,8 @@ final class CreatePostViewController: UIViewController {
         let actionSheet = UIAlertController(title: "Cancel Saving Route", message: "Do you want to Cancel Save Route.\nThis route will not be listed on your profile ", preferredStyle: .actionSheet)
         actionSheet.addAction(UIAlertAction(title: "Yes", style: .destructive, handler: { _ in
             self.dismiss(animated: true) {
+                self.navigationController?.popToRootViewController(animated: true)
+
                 self.tabBarController?.tabBar.isHidden = false
                 self.tabBarController?.selectedIndex = 0
             }
@@ -180,6 +215,21 @@ final class CreatePostViewController: UIViewController {
         actionSheet.addAction(UIAlertAction(title: "Dismiss", style: .cancel, handler: nil))
 
         present(actionSheet, animated: true, completion: nil)
+    }
+    
+    private func findMaxEleAndSpeedCoordinates(locations : [CLLocation]){
+        for location in locations {
+            if location.speed > maxSpeed{
+                maxSpeed = location.speed.rounded(toPlaces: 2)
+                maxSpeedLocationCoordinate = location.coordinate
+            }
+            
+            if location.altitude > maxElevation{
+                maxElevation = location.altitude.rounded(toPlaces: 2)
+                maxEleLocationCoordinate = location.coordinate
+            }
+            
+        }
     }
     
     override func viewDidLayoutSubviews() {
