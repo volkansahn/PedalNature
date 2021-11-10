@@ -1,10 +1,9 @@
 //
-//  SaveButtonTableViewCell.swift
-//  PedalNature
+// SaveButtonTableViewCell.swift
+// PedalNature
 //
-//  Created by Volkan on 10.11.2021.
+// Created by Volkan on 10.11.2021.
 //
-
 import UIKit
 
 protocol SaveButtonTableViewCellDelegate : AnyObject{
@@ -12,11 +11,11 @@ protocol SaveButtonTableViewCellDelegate : AnyObject{
 }
 
 class SaveButtonTableViewCell: UITableViewCell {
-
+    
     static let identifier = "SaveButtonTableViewCell"
     
     public var delegate : SaveButtonTableViewCellDelegate?
-
+    
     private let saveButton : UIButton = {
         let button = UIButton()
         button.setTitle("Save Route", for: .normal)
@@ -46,6 +45,10 @@ class SaveButtonTableViewCell: UITableViewCell {
     override func layoutSubviews() {
         super.layoutSubviews()
         let buttonWidth = 100
-        saveButton.frame = CGRect(x: Int(contentView.width)/2 - buttonWidth/2, y: 0, width: buttonWidth, height: buttonWidth)
-    }
+        saveButton.frame = CGRect(x: Int(contentView.width)/2-buttonWidth/2,
+                                  y: 30,
+                                  width: buttonWidth,
+                                  height: Int(contentView.height)-60)
+
+        }
 }

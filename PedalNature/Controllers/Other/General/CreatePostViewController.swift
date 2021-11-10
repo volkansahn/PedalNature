@@ -1,10 +1,9 @@
 //
-//  CreatePostViewController.swift
-//  PedalNature
+// CreatePostViewController.swift
+// PedalNature
 //
-//  Created by Volkan on 24.09.2021.
+// Created by Volkan on 24.09.2021.
 //
-
 import UIKit
 import MapKit
 import CoreLocation
@@ -65,18 +64,18 @@ final class CreatePostViewController: UIViewController {
         //Cancel Route
         self.navigationItem.setHidesBackButton(true, animated: true)
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Don't Save", style: .plain, target: self, action: #selector(cancelTapped))
-
+        
         if locations.count > 3{
             locations = Array(locations[3..<locations.count])
             locationCoordinates = Array(locationCoordinates[3..<locationCoordinates.count])
         }
-                
+        
         //Max Elevation and Speed
         maxEleLocationCoordinate = locations.first!.coordinate
         maxSpeedLocationCoordinate = locations.first!.coordinate
         
         findMaxEleAndSpeedCoordinates(locations : locations)
-
+        
     }
     
     //Cancel Save
@@ -85,14 +84,14 @@ final class CreatePostViewController: UIViewController {
         actionSheet.addAction(UIAlertAction(title: "Yes", style: .destructive, handler: { _ in
             self.dismiss(animated: true) {
                 self.navigationController?.popToRootViewController(animated: true)
-
+                
                 self.tabBarController?.tabBar.isHidden = false
                 self.tabBarController?.selectedIndex = 0
             }
             
         }))
         actionSheet.addAction(UIAlertAction(title: "Dismiss", style: .cancel, handler: nil))
-
+        
         present(actionSheet, animated: true, completion: nil)
     }
     
@@ -114,11 +113,11 @@ final class CreatePostViewController: UIViewController {
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         let bottomHeight = view.safeAreaLayoutGuide.layoutFrame.size.height
-
-        createRouteTableView.frame = CGRect(x: 20,
+        
+        createRouteTableView.frame = CGRect(x: 0,
                                             y: view.safeAreaInsets.top + 20.0,
                                             width: view.width,
-                                            height: bottomHeight)
+                                            height: view.height - 98)
         
     }
     
@@ -159,11 +158,7 @@ extension CreatePostViewController: UITableViewDelegate, UITableViewDataSource{
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if section == 1 {
-            return 3
-        }else{
-            return 1
-        }
+        return 1
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -191,7 +186,7 @@ extension CreatePostViewController: UITableViewDelegate, UITableViewDataSource{
             cell.delegate = self
             return cell
         default: fatalError("Shouldn't be here")
-
+            
         }
         
     }
@@ -208,9 +203,9 @@ extension CreatePostViewController: UITableViewDelegate, UITableViewDataSource{
         case 3:
             return view.width
         case 4:
-            return 50
+            return 110
         default: fatalError("Shouldn't be here")
-
+            
         }
         
     }
@@ -255,16 +250,17 @@ extension CreatePostViewController: SaveButtonTableViewCellDelegate{
         let mapImage = render.image{(context) in
             mapPhotoView.drawHierarchy(in: mapPhotoView.bounds, afterScreenUpdates: true)
         }
-        print("map  : \(mapImage.size)")
-
+        print("map : \(mapImage.size)")
+        
         //Elevation Chart Image
-        let elevationChartImage = UIImage(data: (elevationChart?.getChartImage(transparent: false)?.pngData())!)
-        elevationImagely = elevationChartImage
-        print("elevation  : \(elevationChartImage!.size)")
-
+        //let elevationChartImage = UIImage(data: (elevationChart?.getChartImage(transparent: false)?.pngData())!)
+        //print("elevation : \(elevationChartImage!.size)")
+        
         //Speed Chart Image
-        let speedChartImage = UIImage(data: (speedChart?.getChartImage(transparent: false)?.pngData())!)
-        print("speed  : \(speedChartImage!.size)")
+        let speedChartImage = speedChart?.getChartImage(transparent: false)
+        elevationImagely = speedChartImage
+        print(speedChartImage)
+        //print("speed : \(speedChartImage!.size)")
         
         let alert = UIAlertController(title: "Saved",
                                       message: "Your Route has been saved!", preferredStyle: .alert)
@@ -296,5 +292,5 @@ extension CreatePostViewController: SpeedGraphTableViewCellDelegate{
     func returnSpeedChart(speedChartView: LineChartView) {
         speedChart = speedChartView
     }
-
+    
 }

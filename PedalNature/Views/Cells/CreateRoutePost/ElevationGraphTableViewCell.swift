@@ -10,22 +10,14 @@ import Charts
 import TinyConstraints
 import CoreLocation
 
-protocol ElevationGraphTableViewCellDelegate : AnyObject{
+protocol ElevationGraphTableViewCellDelegate: AnyObject {
     func returnElevationChart(elevationChartView: LineChartView)
 }
 
 class ElevationGraphTableViewCell: UITableViewCell, ChartViewDelegate {
 
     static let identifier = "ElevationGraphTableViewCell"
-
-    private let graphContainerImageView : UIImageView = {
-        let imageView = UIImageView()
-        imageView.contentMode = .scaleAspectFill
-        imageView.clipsToBounds = true
-        imageView.backgroundColor = nil
-        return imageView
-    }()
-    
+    public var delegate: ElevationGraphTableViewCellDelegate?
     private let elevationHeader : UILabel = {
         let label = UILabel()
         label.textColor = .label
@@ -33,13 +25,13 @@ class ElevationGraphTableViewCell: UITableViewCell, ChartViewDelegate {
         label.font = .systemFont(ofSize: 17, weight: .bold)
         return label
     }()
-    
+   
     private let elevationChartView : LineChartView = {
         let lineChartView = LineChartView()
         lineChartView.backgroundColor = .systemBackground
         lineChartView.rightAxis.enabled = false
         lineChartView.isUserInteractionEnabled = false
-        
+       
         let yAxis = lineChartView.leftAxis
         yAxis.labelFont = .boldSystemFont(ofSize: 12)
         yAxis.setLabelCount(6, force: false)
@@ -47,7 +39,7 @@ class ElevationGraphTableViewCell: UITableViewCell, ChartViewDelegate {
         yAxis.axisLineColor = .label
         yAxis.labelPosition = .outsideChart
         yAxis.drawGridLinesEnabled = false
-        
+       
         lineChartView.xAxis.labelPosition = .bottom
         lineChartView.xAxis.labelFont = .boldSystemFont(ofSize: 12)
         lineChartView.xAxis.setLabelCount(6, force: false)
@@ -57,51 +49,44 @@ class ElevationGraphTableViewCell: UITableViewCell, ChartViewDelegate {
 
         return lineChartView
     }()
-    
+   
     private var locationDatas = [CLLocation]()
-    
+   
     private var entries = [ChartDataEntry]()
-    
-    public var delegate : ElevationGraphTableViewCellDelegate?
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?){
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-        //contentView.addSubview(graphContainerImageView)
         contentView.addSubview(elevationHeader)
         contentView.addSubview(elevationChartView)
     }
-    
+   
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+   
     override func layoutSubviews() {
         super.layoutSubviews()
-        elevationHeader.frame = CGRect(x: 10,
-                                       y: 0,
-                                       width: contentView.width/2-10,
-                                       height: contentView.height/4)
-        
-        elevationChartView.frame = CGRect(x: 10,
+        let headerHeight = 52
+        elevationHeader.frame = CGRect(x: 20,
+                                       y: 5,
+                                       width: Int(contentView.width)/2-10,
+                                       height: headerHeight)
+       
+        elevationChartView.frame = CGRect(x: 20,
                                           y: elevationHeader.bottom,
-                                          width: contentView.width-10,
-                                          height: 3*contentView.height/4)
-        
-        graphContainerImageView.frame = CGRect(x: 0,
-                                               y: elevationHeader.bottom,
-                                               width: contentView.width,
-                                               height: 3*contentView.height/4)
+                                          width: contentView.width-40,
+                                          height: contentView.height - CGFloat(headerHeight))
+ 
     }
-    
+   
     public func configure(with locations: [CLLocation]){
         locationDatas = locations
         setData()
         //graphContainerImageView.image = UIImage(named: "test")
-        
         return
        
     }
-    
+   
     private func setData(){
         var counter = 0.0
         for location in locationDatas{
@@ -117,14 +102,11 @@ class ElevationGraphTableViewCell: UITableViewCell, ChartViewDelegate {
         set1.fill = Fill(color: .systemBlue)
         set1.fillAlpha = 1.0
         set1.drawFilledEnabled = true
-        
+       
         let data = LineChartData(dataSet: set1)
         data.setDrawValues(false)
         elevationChartView.data = data
         delegate?.returnElevationChart(elevationChartView: elevationChartView)
     }
-    
+   
 }
-
-    
-

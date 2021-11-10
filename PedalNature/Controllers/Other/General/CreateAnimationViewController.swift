@@ -473,25 +473,27 @@ private extension CreateAnimationViewController {
         distanceIndicatorLabel.text = String(distanceFromStart)+"km"
         
         //Elevation
-        let entries = Array(ElevationEntries.prefix(upTo: currentStep))
-        if entries.count > 1 && isElevationAvailable{
-            elevationChartView.isHidden = false
-        }else{
-            elevationChartView.isHidden = true
+        if ElevationEntries.isEmpty == false{
+            let entries = Array(ElevationEntries.prefix(upTo: currentStep))
+            if entries.count > 1 && isElevationAvailable{
+                elevationChartView.isHidden = false
+            }else{
+                elevationChartView.isHidden = true
+            }
+            let set1 = LineChartDataSet(entries: entries, label: "")
+            set1.mode = .cubicBezier
+            set1.drawCirclesEnabled = false
+            set1.lineWidth = 0
+            set1.setColor(.white)
+            set1.fill = Fill(color: .systemBlue)
+            set1.fillAlpha = 1.0
+            set1.drawFilledEnabled = true
+            
+            let data = LineChartData(dataSet: set1)
+            data.setDrawValues(false)
+            elevationChartView.data = data
+            
         }
-        let set1 = LineChartDataSet(entries: entries, label: "")
-        set1.mode = .cubicBezier
-        set1.drawCirclesEnabled = false
-        set1.lineWidth = 0
-        set1.setColor(.white)
-        set1.fill = Fill(color: .systemBlue)
-        set1.fillAlpha = 1.0
-        set1.drawFilledEnabled = true
-        
-        let data = LineChartData(dataSet: set1)
-        data.setDrawValues(false)
-        elevationChartView.data = data
-        
         
         animatedMapView.addOverlay(currentSegment)
         previousSegment = currentSegment
