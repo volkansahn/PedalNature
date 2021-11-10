@@ -16,7 +16,7 @@ final class MapViewController: UIViewController {
     private var imagePickerController: UIImagePickerController?
     private var timer = Timer()
     private var counter = 0
-
+    
     public let stopButtonSize = 100.0
     private let goButtonSize = 100.0
     
@@ -179,81 +179,66 @@ final class MapViewController: UIViewController {
         let myAttribute = [ NSAttributedString.Key.foregroundColor: UIColor.label,
                             NSAttributedString.Key.font: UIFont.boldSystemFont(ofSize: 24)]
         let myAttrString = NSAttributedString(string: title, attributes: myAttribute)
-
+        
         // set attributed text on a UILabel
         button.setAttributedTitle(myAttrString, for: .normal)
         
         button.isHidden = false
         return button
     }()
-        
+    
     private let locationManager = CLLocationManager()
     
     public var cameraReturn = Bool()
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        view.addSubview(mapView)
+        view.addSubview(buttonContainerView)
+        view.addSubview(goButton)
+        view.addSubview(endButton)
+        view.addSubview(pauseButton)
+        view.addSubview(playButton)
+        view.addSubview(pauseLabel)
+        view.addSubview(distanceLabel)
+        view.addSubview(elevationLabel)
+        view.addSubview(timeLabel)
+        view.addSubview(speedLabel)
+        view.addSubview(distanceHeaderLabel)
+        view.addSubview(elevationHeaderLabel)
+        view.addSubview(timeHeaderLabel)
+        view.addSubview(speedHeaderLabel)
+        view.addSubview(cameraButton)
+        mapView.layer.masksToBounds = true
+        mapView.overrideUserInterfaceStyle = .dark
+        locationManager.delegate = self
+        askLocationPermission()
+        goButton.addTarget(self,
+                           action: #selector(startActivity), for: .touchUpInside)
+        endButton.addTarget(self,
+                            action: #selector(endPressed), for: .touchUpInside)
+        playButton.addTarget(self,
+                             action: #selector(playPressed), for: .touchUpInside)
+        
+        pauseButton.addTarget(self,action: #selector(pausePressed), for: .touchUpInside)
+        
+        cameraButton.addTarget(self,
+                               action: #selector(cameraPressed), for: .touchUpInside)
         
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        print(cameraReturn)
-        if cameraReturn == false{
-            view.addSubview(mapView)
-            view.addSubview(buttonContainerView)
-            view.addSubview(goButton)
-            view.addSubview(endButton)
-            view.addSubview(pauseButton)
-            view.addSubview(playButton)
-            view.addSubview(pauseLabel)
-            view.addSubview(distanceLabel)
-            view.addSubview(elevationLabel)
-            view.addSubview(timeLabel)
-            view.addSubview(speedLabel)
-            view.addSubview(distanceHeaderLabel)
-            view.addSubview(elevationHeaderLabel)
-            view.addSubview(timeHeaderLabel)
-            view.addSubview(speedHeaderLabel)
-            view.addSubview(cameraButton)
-            print("return")
-            counter = 0
-            locationArray = [CLLocation]()
-            locationCoordinateArray = [CLLocationCoordinate2D]()
-            listOfContent = [RouteImage]()
-            duration = ""
-            distance = ""
-            mapView.layer.masksToBounds = true
-            mapView.overrideUserInterfaceStyle = .dark
-            locationManager.delegate = self
-            askLocationPermission()
-            goButton.addTarget(self,
-                               action: #selector(startActivity), for: .touchUpInside)
-            endButton.addTarget(self,
-                                action: #selector(endPressed), for: .touchUpInside)
-            playButton.addTarget(self,
-                                 action: #selector(playPressed), for: .touchUpInside)
-         
-            pauseButton.addTarget(self,action: #selector(pausePressed), for: .touchUpInside)
-
-            cameraButton.addTarget(self,
-                                   action: #selector(cameraPressed), for: .touchUpInside)
-        }else{
             
-            goButton.isHidden = true
-            endButton.center.x = self.stopButtonSize/2 + 20
-            playButton.center.x = self.view.width-self.stopButtonSize/2-20
-            cameraReturn = false
-        }
     }
     
     @objc func cameraPressed(){
         pausePressed()
-		let vc = CameraViewController()
+        let vc = CameraViewController()
         vc.modalPresentationStyle = .fullScreen
         self.navigationController?.pushViewController(vc, animated: true)
     }
-                       
+    
     @objc func pausePressed(){
         pauseButton.fadeOut()
         self.locationManager.stopUpdatingLocation()
@@ -388,7 +373,7 @@ final class MapViewController: UIViewController {
     
     private func startTimer(){
         timer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(UpdateTimer), userInfo: nil, repeats: true)
-
+        
     }
     
     @objc func UpdateTimer() {
@@ -458,7 +443,7 @@ final class MapViewController: UIViewController {
                                 height: goButtonSize)
         
         goButton.layer.cornerRadius = goButtonSize/2
-    
+        
         
         buttonContainerView.frame = CGRect(x: 0,
                                            y: view.height - 1.5*goButtonSize,
@@ -482,13 +467,15 @@ final class MapViewController: UIViewController {
                                  y: buttonContainerView.top+(0.25*stopButtonSize),
                                  width: stopButtonSize,
                                  height: stopButtonSize)
-        
+        endButton.center.x = stopButtonSize/2 + 20
         endButton.layer.cornerRadius = stopButtonSize/2
         
         playButton.frame = CGRect(x: (view.width/2) - CGFloat(stopButtonSize/2),
                                   y: buttonContainerView.top+(0.25*stopButtonSize),
                                   width: stopButtonSize,
                                   height: stopButtonSize)
+        playButton.center.x = view.width-stopButtonSize/2-20
+        
         playButton.layer.cornerRadius = stopButtonSize/2
         
         let cameraButtonSize = 30
@@ -542,21 +529,21 @@ final class MapViewController: UIViewController {
 extension MapViewController: CLLocationManagerDelegate{
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         UIApplication.shared.isIdleTimerDisabled = true
-
-            if let location = locations.first {
-                
-                locationArray.append(location)
-                locationCoordinateArray.append(location.coordinate)
-                configureIndicators(location : location)
-                
-                mapView.centerToLocation(location)
-                mapView.showsUserLocation = true
-                
-            }
+        
+        if let location = locations.first {
+            
+            locationArray.append(location)
+            locationCoordinateArray.append(location.coordinate)
+            configureIndicators(location : location)
+            
+            mapView.centerToLocation(location)
+            mapView.showsUserLocation = true
+            
+        }
         
         
     }
-
+    
     
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
         askLocationPermission()

@@ -10,6 +10,10 @@ import CoreLocation
 import Charts
 import TinyConstraints
 
+protocol SpeedGraphTableViewCellDelegate : AnyObject{
+    func returnSpeedChart(speedChartView: LineChartView)
+}
+
 class SpeedGraphTableViewCell: UITableViewCell {
     
     static let identifier = "SpeedGraphTableViewCell"
@@ -57,6 +61,8 @@ class SpeedGraphTableViewCell: UITableViewCell {
     private var locationDatas = [CLLocation]()
     
     private var entries = [ChartDataEntry]()
+    
+    public var delegate : SpeedGraphTableViewCellDelegate?
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?){
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -115,6 +121,7 @@ class SpeedGraphTableViewCell: UITableViewCell {
         let data = LineChartData(dataSet: set1)
         data.setDrawValues(false)
         speedChartView.data = data
+        delegate?.returnSpeedChart(speedChartView: speedChartView)
     }
     
 }

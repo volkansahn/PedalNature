@@ -21,6 +21,7 @@ final class RouteImagesTableViewCell: UITableViewCell {
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
         imageView.backgroundColor = nil
+        imageView.isHidden = true
         return imageView
     }()
     
@@ -28,7 +29,6 @@ final class RouteImagesTableViewCell: UITableViewCell {
         let view = UIView()
         view.backgroundColor = .systemBackground
         view.layer.masksToBounds = true
-        view.isHidden = true
         view.alpha = 0.75
         return view
     }()
@@ -38,7 +38,6 @@ final class RouteImagesTableViewCell: UITableViewCell {
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
         imageView.backgroundColor = nil
-        imageView.isHidden = true
         return imageView
     }()
     
@@ -67,10 +66,10 @@ final class RouteImagesTableViewCell: UITableViewCell {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         mapView.delegate = self
         avPlayerController.view.isHidden = true
-        avPlayerController.view.clipsToBounds = false
-        //contentView.addSubview(mapContainerView)
         contentView.addSubview(routeImageView)
-        //contentView.addSubview(mapView)
+        contentView.addSubview(avPlayerController.view)
+        contentView.addSubview(mapContainerView)
+        contentView.addSubview(mapView)
         contentView.addSubview(useNotUseImageButton)
         contentView.addSubview(dimmedView)
         
@@ -81,14 +80,13 @@ final class RouteImagesTableViewCell: UITableViewCell {
         avPlayer = AVPlayer(url: fileURL)
         
         avPlayerController.player = avPlayer
-        avPlayerController.view.frame = routeImageView.frame
         
         // Turn on video controlls
         avPlayerController.showsPlaybackControls = true
         
         // play video
         avPlayerController.player?.play()
-        self.contentView.addSubview(avPlayerController.view)
+
     }
     
     @objc func useNotUseImageButtonPressed(){
@@ -119,14 +117,17 @@ final class RouteImagesTableViewCell: UITableViewCell {
     
     override func layoutSubviews() {
         super.layoutSubviews()
+        let buttonWidth = 100
+        let buttonHeight = 52
         routeImageView.frame = CGRect(x: 0,
                                       y: 0,
                                       width: contentView.width,
-                                      height: 9*contentView.height/10)
+                                      height: contentView.height - CGFloat(buttonHeight) - 10)
+        avPlayerController.view.frame = routeImageView.frame
         
-        let mapContainerHeight = 50
-        let mapContainerWidth = 100
-        
+         let mapContainerHeight = 50
+         let mapContainerWidth = 100
+         
         mapContainerView.frame = CGRect(x: Int(routeImageView.width)-mapContainerWidth-20,
                                         y: Int(routeImageView.bottom) - mapContainerHeight-20,
                                         width: mapContainerWidth,
@@ -136,12 +137,12 @@ final class RouteImagesTableViewCell: UITableViewCell {
                                y: Int(mapContainerView.top) + 5,
                                width: mapContainerWidth-10,
                                height: mapContainerHeight-10)
+         
         
-        let buttonWidth = 100
         useNotUseImageButton.frame = CGRect(x: contentView.width/2 - CGFloat(buttonWidth/2),
-                                            y: CGFloat(routeImageView.bottom + 30),
+                                            y: CGFloat(routeImageView.bottom + 10),
                                             width: CGFloat(buttonWidth),
-                                            height: contentView.height/10)
+                                            height: CGFloat(buttonHeight))
         
         dimmedView.frame = routeImageView.frame
         
@@ -151,6 +152,7 @@ final class RouteImagesTableViewCell: UITableViewCell {
         
         if image.image != nil{
             routeMapImageView.isHidden = false
+            print(image.image?.size)
             avPlayerController.view.isHidden = true
             routeImageView.image = image.image
             
@@ -168,14 +170,12 @@ final class RouteImagesTableViewCell: UITableViewCell {
             coordinates = Array(locationCoordinates[3..<locationCoordinates.count])
             syncedLocations = Array(locations[3..<locations.count])
         }else{
-            coordinates = Array(locationCoordinates[3..<locationCoordinates.count])
-            syncedLocations = Array(locations[3..<locations.count])
+            coordinates = locationCoordinates
+            syncedLocations = locations
         }
-        let polyline = MKGeodesicPolyline(coordinates: coordinates, count: coordinates.count)
-        mapView.addOverlay(polyline)
         let midLocation = coordinates[(coordinates.count/2)]
-        let startLocation = locations.first!
-        let endLocation = locations.last!
+        let startLocation = syncedLocations.first!
+        let endLocation = syncedLocations.last!
         let delta: CLLocationDistance = startLocation.distance(from: endLocation)
         let regionRadius : CLLocationDistance = delta + 500
         

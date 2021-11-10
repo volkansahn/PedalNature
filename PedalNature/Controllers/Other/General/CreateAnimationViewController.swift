@@ -56,7 +56,12 @@ class CreateAnimationViewController: UIViewController {
         return tableView
     }()
     
-    
+    private let PhotoImageView : UIImageView = {
+        let imageView = UIImageView()
+        imageView.backgroundColor = .red
+        imageView.contentMode = .scaleAspectFill
+        return imageView
+    }()
     
     private let actionContainerView : UIView = {
         let view = UIView()
@@ -142,7 +147,7 @@ class CreateAnimationViewController: UIViewController {
     }()
     public var isElevationAvailable = false
     public var ElevationEntries = [ChartDataEntry]()
-    
+    public var elevationimage : UIImage?
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
@@ -157,9 +162,11 @@ class CreateAnimationViewController: UIViewController {
         view.addSubview(durationIndicatorLabel)
         view.addSubview(distanceIndicatorLabel)
         view.addSubview(shareButton)
+        view.addSubview(PhotoImageView)
+
         animationSelectionTableView.delegate = self
         animationSelectionTableView.dataSource = self
-        
+        PhotoImageView.image = elevationimage!
         center(onRoute: route, fromDistance: 10)
         //MapView
         animatedMapView.delegate = self
@@ -186,17 +193,23 @@ class CreateAnimationViewController: UIViewController {
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        
+        /*
         animatedMapView.frame = CGRect(x: 20.0,
                                        y: view.safeAreaInsets.top + 20,
                                        width: view.width - 40.0,
                                        height: view.width - 40.0)
+        */
+        PhotoImageView.frame = CGRect(x: 20.0,
+                                      y: view.safeAreaInsets.top + 20,
+                                      width: view.width - 40.0,
+                                      height: view.width - 40.0)
+
         
-        showLabel.center = animatedMapView.center
+        showLabel.center = PhotoImageView.center
         let ContainerViewHeight = 320.0
         let tableViewHeight = 200.0
         ContainerView.frame = CGRect(x: 0,
-                                     y: animatedMapView.bottom,
+                                     y: PhotoImageView.bottom,
                                      width: view.width,
                                      height: ContainerViewHeight)
         
@@ -236,6 +249,7 @@ class CreateAnimationViewController: UIViewController {
                                               y: Int(animatedMapView.bottom) - 20 - labelHeight,
                                               width: labelWidth,
                                               height: labelHeight)
+        
     }
     
     //Cancel Save
@@ -312,7 +326,6 @@ private extension CreateAnimationViewController {
         
         let totalSteps = route.count
         let stepDrawDuration = duration/TimeInterval(totalSteps)
-        print("stepDrawDuration : \(stepDrawDuration)")
         timer = Timer.scheduledTimer(timeInterval: stepDrawDuration, target: self, selector: #selector(animate), userInfo: nil, repeats: true)
         
     }

@@ -10,6 +10,10 @@ import Charts
 import TinyConstraints
 import CoreLocation
 
+protocol ElevationGraphTableViewCellDelegate : AnyObject{
+    func returnElevationChart(elevationChartView: LineChartView)
+}
+
 class ElevationGraphTableViewCell: UITableViewCell, ChartViewDelegate {
 
     static let identifier = "ElevationGraphTableViewCell"
@@ -57,6 +61,8 @@ class ElevationGraphTableViewCell: UITableViewCell, ChartViewDelegate {
     private var locationDatas = [CLLocation]()
     
     private var entries = [ChartDataEntry]()
+    
+    public var delegate : ElevationGraphTableViewCellDelegate?
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?){
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -91,6 +97,7 @@ class ElevationGraphTableViewCell: UITableViewCell, ChartViewDelegate {
         locationDatas = locations
         setData()
         //graphContainerImageView.image = UIImage(named: "test")
+        
         return
        
     }
@@ -114,7 +121,7 @@ class ElevationGraphTableViewCell: UITableViewCell, ChartViewDelegate {
         let data = LineChartData(dataSet: set1)
         data.setDrawValues(false)
         elevationChartView.data = data
-        
+        delegate?.returnElevationChart(elevationChartView: elevationChartView)
     }
     
 }
