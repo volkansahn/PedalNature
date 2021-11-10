@@ -3,12 +3,12 @@
 //
 //  Created by Volkan on 02.11.2021.
 //
-
 import UIKit
 import SDWebImage
 import CoreLocation
 import MapKit
 import Charts
+import AVKit
 
 class CreateAnimationViewController: UIViewController {
     
@@ -41,12 +41,11 @@ class CreateAnimationViewController: UIViewController {
         return label
     }()
     
-    private let ContainerView : UIView = {
+    private let containerView : UIView = {
         let view = UIView()
         return view
     }()
     
-    //Changed
     let selectionLabel = ["Speed Gauge", "Elevation Graph", "Duration", "Distance"]
     
     private var animationSelectionTableView : UITableView = {
@@ -54,13 +53,6 @@ class CreateAnimationViewController: UIViewController {
         tableView.register(AnimationSelectionTableViewCell.self, forCellReuseIdentifier: AnimationSelectionTableViewCell.identifier)
         tableView.isScrollEnabled = false
         return tableView
-    }()
-    
-    private let PhotoImageView : UIImageView = {
-        let imageView = UIImageView()
-        imageView.backgroundColor = .red
-        imageView.contentMode = .scaleAspectFill
-        return imageView
     }()
     
     private let actionContainerView : UIView = {
@@ -147,14 +139,23 @@ class CreateAnimationViewController: UIViewController {
     }()
     public var isElevationAvailable = false
     public var ElevationEntries = [ChartDataEntry]()
-    public var elevationimage : UIImage?
+    //Show Picture
+    private let photoImageView : UIImageView = {
+        let imageView = UIImageView()
+        imageView.backgroundColor = .red
+        imageView.contentMode = .scaleAspectFill
+        imageView.isHidden = true
+        return imageView
+    }()
+    //Show Video
+    var avPlayer: AVPlayer!
+    let avPlayerController = AVPlayerViewController()
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
         view.addSubview(animatedMapView)
         view.addSubview(showLabel)
-        //Changed
-        view.addSubview(ContainerView)
+        view.addSubview(containerView)
         view.addSubview(actionContainerView)
         view.addSubview(animationSelectionTableView)
         view.addSubview(speedGaugeLabel)
@@ -162,11 +163,12 @@ class CreateAnimationViewController: UIViewController {
         view.addSubview(durationIndicatorLabel)
         view.addSubview(distanceIndicatorLabel)
         view.addSubview(shareButton)
-        view.addSubview(PhotoImageView)
+        view.addSubview(photoImageView)
+        view.addSubview(avPlayerController.view)
 
+        avPlayerController.view.isHidden = true
         animationSelectionTableView.delegate = self
         animationSelectionTableView.dataSource = self
-        PhotoImageView.image = elevationimage!
         center(onRoute: route, fromDistance: 10)
         //MapView
         animatedMapView.delegate = self
@@ -193,34 +195,30 @@ class CreateAnimationViewController: UIViewController {
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        /*
+        
         animatedMapView.frame = CGRect(x: 20.0,
                                        y: view.safeAreaInsets.top + 20,
                                        width: view.width - 40.0,
                                        height: view.width - 40.0)
-        */
-        PhotoImageView.frame = CGRect(x: 20.0,
-                                      y: view.safeAreaInsets.top + 20,
-                                      width: view.width - 40.0,
-                                      height: view.width - 40.0)
-
         
-        showLabel.center = PhotoImageView.center
+        photoImageView.frame = animatedMapView.bounds
+
+        showLabel.center = animatedMapView.center
         let ContainerViewHeight = 320.0
         let tableViewHeight = 200.0
-        ContainerView.frame = CGRect(x: 0,
-                                     y: PhotoImageView.bottom,
+        containerView.frame = CGRect(x: 0,
+                                     y: photoImageView.bottom,
                                      width: view.width,
                                      height: ContainerViewHeight)
         
         shareButton.frame = CGRect(x: view.width/2.0 - buttonWidth/2.0,
-                                   y: ContainerView.bottom - 20.0 - buttonHeight,
+                                   y: containerView.bottom - 20.0 - buttonHeight,
                                    width: buttonWidth,
                                    height: buttonHeight)
         
-        actionContainerView.frame = CGRect(x: ContainerView.left + 20.0,
-                                           y: ContainerView.top + 20.0,
-                                           width: ContainerView.width - 40.0,
+        actionContainerView.frame = CGRect(x: containerView.left + 20.0,
+                                           y: containerView.top + 20.0,
+                                           width: containerView.width - 40.0,
                                            height: tableViewHeight)
         actionContainerView.layer.cornerRadius = 16.0
         
@@ -311,6 +309,20 @@ class CreateAnimationViewController: UIViewController {
             }
             
         }
+    }
+
+    private func preparePlayer(with fileURL: URL) {
+        
+        avPlayer = AVPlayer(url: fileURL)
+        
+        avPlayerController.player = avPlayer
+        
+        // Turn on video controlls
+        avPlayerController.showsPlaybackControls = true
+        
+        // play video
+        avPlayerController.player?.play()
+
     }
 }
 
@@ -441,11 +453,15 @@ private extension CreateAnimationViewController {
                                    delay: 0.0,
                                    options: [],
                                    animations: {
-                        self.showLabel.text =  "Image"
-                        self.showLabel.fadeIn()
+                        for image in self.images{
+                          if image.coordinate == curentCoord{
+                            self.photoImageView.isHidden = false
+                              self.photoImageView.image = image.image
+                          }
+                        }
                     }, completion: { finished in
                         if finished{
-                            self.showLabel.fadeOut()
+                            self.photoImageView.isHidden = true
                             self.routeAnimate(duration: self.duration)
                         }
                     })
@@ -456,11 +472,16 @@ private extension CreateAnimationViewController {
                                    delay: 0.0,
                                    options: [],
                                    animations: {
-                        self.showLabel.text =  "Video"
-                        self.showLabel.fadeIn()
+                        for image in self.images{
+                          if image.coordinate == curentCoord{
+                            self.avPlayerController.view.isHidden = false
+                              //self.preparePlayer(with: image.videoURL!)
+                          }
+                        }
+                      
                     }, completion: { finished in
                         if finished{
-                            self.showLabel.fadeOut()
+                            self.avPlayerController.view.isHidden = true
                             self.routeAnimate(duration: self.duration)
                         }
                     })

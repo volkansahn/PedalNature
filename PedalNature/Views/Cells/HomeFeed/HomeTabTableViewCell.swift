@@ -4,7 +4,6 @@
 //
 //  Created by Volkan on 15.10.2021.
 //
-
 import UIKit
 import SDWebImage
 
@@ -146,12 +145,6 @@ final class HomeTabTableViewCell: UITableViewCell {
         return label
     }()
     
-    private let elevationGrapImageView : UIImageView = {
-        let imageView = UIImageView()
-        imageView.contentMode = .scaleAspectFill
-        return imageView
-    }()
-    
     // MARK: After Variable Decleration
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?){
@@ -193,7 +186,6 @@ final class HomeTabTableViewCell: UITableViewCell {
         contentView.addSubview(likeButton)
         contentView.addSubview(commentButton)
         contentView.addSubview(likeAndCommentNumberLabel)
-        contentView.addSubview(elevationGrapImageView)
         likeButton.addTarget(self,
                              action: #selector(didTapLikeButton),
                              for: .touchUpInside)
@@ -309,11 +301,6 @@ final class HomeTabTableViewCell: UITableViewCell {
                                                  width: contentView.width/2,
                                                  height: CGFloat(actionSectionHeight/2))
         
-        elevationGrapImageView.frame = CGRect(x: (3*contentView.width)/4,
-                                              y: homeImageView.bottom+10,
-                                              width: contentView.width/4 - 70,
-                                              height: CGFloat(actionSectionHeight-10))
-        
     }
     
     @objc func didTapMoreButton(){
@@ -328,7 +315,6 @@ final class HomeTabTableViewCell: UITableViewCell {
         // MARK: User Info
         userPhotoImageView.image = UIImage(systemName: "person.circle")
         //let imageURL = modal.owner.profilePhoto
-
         //userPhotoImageView.sd_setImage(with: imageURL, completed: nil)
         userNameLabel.text = modal.owner.userName
         locationAndDateLabel.text = "\(modal.city), \(modal.createdDate)"
@@ -408,9 +394,7 @@ final class HomeTabTableViewCell: UITableViewCell {
         }else{
             likeAndCommentNumberLabel.text = "\(modal.likeCount.count) \(likeString) and \(modal.comments.count) \(commentString)"
         }
-        
-        //elevationGrapImageView.sd_setImage(with: modal.elevationGraph, completed: nil)
-        elevationGrapImageView.image = UIImage(named: "elevationtest")
+      
     }
     
     override func prepareForReuse() {

@@ -86,7 +86,7 @@ class TagAndImagesTableViewCell: UITableViewCell {
         // Info
         contentView.addSubview(infoLabel)
         contentView.addSubview(goToInfoButton)
-        goToRouteImageButton.addTarget(self, action: #selector(didTapRouteInfoView), for: .touchUpInside)
+        goToInfoButton.addTarget(self, action: #selector(didTapRouteInfoView), for: .touchUpInside)
         
     }
     

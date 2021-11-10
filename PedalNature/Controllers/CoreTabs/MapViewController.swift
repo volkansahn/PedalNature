@@ -235,6 +235,7 @@ final class MapViewController: UIViewController {
     @objc func cameraPressed(){
         pausePressed()
         let vc = CameraViewController()
+        vc.location = locationArray.last!
         vc.modalPresentationStyle = .fullScreen
         self.navigationController?.pushViewController(vc, animated: true)
     }

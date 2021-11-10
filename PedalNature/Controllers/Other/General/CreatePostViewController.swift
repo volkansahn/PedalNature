@@ -162,31 +162,28 @@ extension CreatePostViewController: UITableViewDelegate, UITableViewDataSource{
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        switch indexPath.section{
-        case 0:
+        if indexPath.section == 0{
             let cell = tableView.dequeueReusableCell(withIdentifier: CreateRouteGraphsTableViewCell.identifier) as! CreateRouteGraphsTableViewCell
             cell.configure(with: locationCoordinates, locations: locations, images : images)
             return cell
-        case 1:
+        }else if indexPath.section == 1{
             let cell = tableView.dequeueReusableCell(withIdentifier: TagAndImagesTableViewCell.identifier) as! TagAndImagesTableViewCell
             cell.delegate = self
             return cell
-        case 2:
+        }else if indexPath.section == 2{
             let cell = tableView.dequeueReusableCell(withIdentifier: ElevationGraphTableViewCell.identifier) as! ElevationGraphTableViewCell
             cell.configure(with: locations)
             cell.delegate = self
             return cell
-        case 3:
+        }else if indexPath.section == 3{
             let cell = tableView.dequeueReusableCell(withIdentifier: SpeedGraphTableViewCell.identifier) as! SpeedGraphTableViewCell
             cell.configure(with: locations)
             cell.delegate = self
             return cell
-        case 4:
+        }else {
             let cell = tableView.dequeueReusableCell(withIdentifier: SaveButtonTableViewCell.identifier) as! SaveButtonTableViewCell
             cell.delegate = self
             return cell
-        default: fatalError("Shouldn't be here")
-            
         }
         
     }
@@ -253,14 +250,10 @@ extension CreatePostViewController: SaveButtonTableViewCellDelegate{
         print("map : \(mapImage.size)")
         
         //Elevation Chart Image
-        //let elevationChartImage = UIImage(data: (elevationChart?.getChartImage(transparent: false)?.pngData())!)
-        //print("elevation : \(elevationChartImage!.size)")
+        let elevationChartImage = elevationChart?.getChartImage(transparent: false)
         
         //Speed Chart Image
         let speedChartImage = speedChart?.getChartImage(transparent: false)
-        elevationImagely = speedChartImage
-        print(speedChartImage)
-        //print("speed : \(speedChartImage!.size)")
         
         let alert = UIAlertController(title: "Saved",
                                       message: "Your Route has been saved!", preferredStyle: .alert)
@@ -270,7 +263,6 @@ extension CreatePostViewController: SaveButtonTableViewCellDelegate{
             vc.route = self.locationCoordinates
             vc.locations = self.locations
             vc.images = self.images
-            vc.elevationimage = self.elevationImagely!
             vc.totalCount = Double(self.totalCount)
             self.navigationController?.pushViewController(vc, animated: true)
         }))

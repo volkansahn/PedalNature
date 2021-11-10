@@ -4,7 +4,6 @@
 //
 //  Created by Volkan on 26.09.2021.
 //
-
 import UIKit
 import AVFoundation
 import CoreLocation
@@ -25,9 +24,10 @@ final class CameraViewController: UIViewController {
     }()
     
     private let recordVideoButton : UIButton = {
-        let button = UIButton(frame: CGRect(x: 0, y: 0, width: 80,height: 80))
+        let button = UIButton(frame: CGRect(x: 0, y: 0, width: 100,height: 100))
         button.setImage(UIImage(systemName: "record.circle"), for: [])
         button.tintColor = UIColor.red
+        button.backgroundColor = UIColor.white
         button.isHidden = true
         return button
     }()
@@ -74,6 +74,8 @@ final class CameraViewController: UIViewController {
     
     private let photoOutput = AVCapturePhotoOutput()
     
+    private var videoOutput : AVCaptureVideoDataOutput!
+    
     private var movieFileOutput: AVCaptureMovieFileOutput?
     
     var captureModeControl = UISegmentedControl()
@@ -87,7 +89,9 @@ final class CameraViewController: UIViewController {
     public var imageList = [RouteImage]()
     
     let locationManager = CLLocationManager()
-    
+    var takePhoto = false
+    var location = CLLocation()
+
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
@@ -194,7 +198,7 @@ final class CameraViewController: UIViewController {
                 
             case .notAuthorized:
                 DispatchQueue.main.async {
-                    let changePrivacySetting = "AVCam doesn't have permission to use the camera, please change privacy settings"
+                    let changePrivacySetting = "PedalNature doesn't have permission to use the camera, please change privacy settings"
                     let message = NSLocalizedString(changePrivacySetting, comment: "Alert message when the user has denied access to the camera")
                     let alertController = UIAlertController(title: "AVCam", message: message, preferredStyle: .alert)
                     
@@ -217,7 +221,7 @@ final class CameraViewController: UIViewController {
                 DispatchQueue.main.async {
                     let alertMsg = "Alert message when something goes wrong during capture session configuration"
                     let message = NSLocalizedString("Unable to capture media", comment: alertMsg)
-                    let alertController = UIAlertController(title: "AVCam", message: message, preferredStyle: .alert)
+                    let alertController = UIAlertController(title: "PedalNature", message: message, preferredStyle: .alert)
                     
                     alertController.addAction(UIAlertAction(title: NSLocalizedString("OK", comment: "Alert OK button"),
                                                             style: .cancel,
@@ -309,7 +313,7 @@ final class CameraViewController: UIViewController {
             var defaultVideoDevice: AVCaptureDevice?
             
             // Choose the back dual camera, if available, otherwise default to a wide angle camera.
-            
+            /*
             if let dualCameraDevice = AVCaptureDevice.default(.builtInDualCamera, for: .video, position: .back) {
                 defaultVideoDevice = dualCameraDevice
             } else if let dualWideCameraDevice = AVCaptureDevice.default(.builtInDualWideCamera, for: .video, position: .back) {
@@ -322,7 +326,11 @@ final class CameraViewController: UIViewController {
                 // If the rear wide angle camera isn't available, default to the front wide angle camera.
                 defaultVideoDevice = frontCameraDevice
             }
-            
+            */
+            if let device = AVCaptureDevice.default(for: .video) {
+              defaultVideoDevice = device
+            }
+                
             guard let videoDevice = defaultVideoDevice else {
                 print("Default video device is unavailable.")
                 setupResult = .configurationFailed
@@ -380,7 +388,7 @@ final class CameraViewController: UIViewController {
         } catch {
             print("Could not create audio device input: \(error)")
         }
-        
+        /*
         // Add the photo output.
         if session.canAddOutput(photoOutput) {
             session.addOutput(photoOutput)
@@ -393,16 +401,22 @@ final class CameraViewController: UIViewController {
             session.commitConfiguration()
             return
         }
-        
+        */
+        //setup output
+        self.setupOutput()
         session.commitConfiguration()
     }
     
-    private func displayedCapturedPhoto(capturedPhoto: UIImage){
-        let vc = PicturePreviewViewController()
-        vc.modalPresentationStyle = .fullScreen
-        vc.image = capturedPhoto
-        self.navigationController?.pushViewController(vc, animated: true)
+    func setupOutput(){
+        videoOutput = AVCaptureVideoDataOutput()
+        let videoQueue = DispatchQueue(label: "videoQueue", qos: .userInteractive)
+        videoOutput.setSampleBufferDelegate(self, queue: videoQueue)
         
+        if session.canAddOutput(videoOutput) {
+            session.addOutput(videoOutput)
+        } else {
+            fatalError("could not add video output")
+        }
     }
 
     @objc func takePicture(){
@@ -411,14 +425,18 @@ final class CameraViewController: UIViewController {
          entering the session queue. Do this to ensure that UI elements are accessed on
          the main thread and session configuration is done on the session queue.
          */
-        
+        takePhoto = true
         let alertController = UIAlertController(title: "Photo Capture", message: "Your Photo Captured", preferredStyle: .alert)
-        
-        alertController.addAction(UIAlertAction(title: "Ok", style: .cancel, handler: nil))
+        self.session.stopRunning()
+        alertController.addAction(UIAlertAction(title: "Ok", style: .cancel, handler: { _ in
+            self.session.startRunning()
+        }))
         self.present(alertController, animated: true, completion: nil)
 
-        let videoPreviewLayerOrientation = previewView.videoPreviewLayer.connection?.videoOrientation
         
+        
+        let videoPreviewLayerOrientation = previewView.videoPreviewLayer.connection?.videoOrientation
+        /*
         sessionQueue.async {
             if let photoOutputConnection = self.photoOutput.connection(with: .video) {
                 photoOutputConnection.videoOrientation = videoPreviewLayerOrientation!
@@ -474,6 +492,7 @@ final class CameraViewController: UIViewController {
             self.photoOutput.capturePhoto(with: photoSettings, delegate: photoCaptureProcessor)
             
         }
+        */
     }
     
     @objc func changeCamera(){
@@ -855,6 +874,8 @@ extension CameraViewController: UINavigationControllerDelegate {
     }
 }
 
+
+
 extension CameraViewController: AVCaptureFileOutputRecordingDelegate{
     /// - Tag: DidStartRecording
     func fileOutput(_ output: AVCaptureFileOutput, didStartRecordingTo fileURL: URL, from connections: [AVCaptureConnection]) {
@@ -903,6 +924,7 @@ extension CameraViewController: AVCaptureFileOutputRecordingDelegate{
                         
                         // Specify the location the movie was recoreded
                         creationRequest.location = self.locationManager.location
+                        
                         let video = RouteImage(image: nil, videoURL: outputFileURL, coordinate: self.locationManager.location!.coordinate)
                         self.imageList.append(video)
                         
@@ -931,4 +953,28 @@ extension CameraViewController: AVCaptureFileOutputRecordingDelegate{
         }
     }
     
+}
+
+extension CameraViewController: AVCaptureVideoDataOutputSampleBufferDelegate {
+    func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
+        if !takePhoto {
+            return //we have nothing to do with the image buffer
+        }
+        
+        //try and get a CVImageBuffer out of the sample buffer
+        guard let cvBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else {
+            return
+        }
+        
+        //get a CIImage out of the CVImageBuffer
+        let ciImage = CIImage(cvImageBuffer: cvBuffer)
+        
+        //get UIImage out of CIImage
+        let uiImage = UIImage(ciImage: ciImage)
+        
+        DispatchQueue.main.async {
+            self.imageList.append(RouteImage(image: uiImage, videoURL: nil, coordinate: self.location.coordinate))
+            self.takePhoto = false
+        }
+    }
 }
