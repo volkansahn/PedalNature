@@ -54,7 +54,12 @@ final class CameraViewController: UIViewController {
     
     var previewView = UIView()
     
-    var capturedImageView = UIImageView()
+    var capturedImageView : UIImageView = {
+        let imageView = UIImageView()
+        imageView.contentMode = .scaleAspectFill
+        imageView.isHidden = true
+        return imageView
+    }()
         
     public var imageList = [RouteImage]()
     
@@ -226,16 +231,18 @@ extension CameraViewController: AVCapturePhotoCaptureDelegate{
         
         guard let imageData = photo.fileDataRepresentation()
             else { return }
-        
-        let alertController = UIAlertController(title: "Photo Capture", message: "Your Photo Captured", preferredStyle: .alert)
+        capturedImageView.isHidden = false
         self.captureSession.stopRunning()
+        let image = UIImage(data: imageData)
+        capturedImageView.image = image
+        let alertController = UIAlertController(title: "Photo Capture", message: "Your Photo Captured", preferredStyle: .alert)
         alertController.addAction(UIAlertAction(title: "Ok", style: .cancel, handler: { _ in
+            self.capturedImageView.isHidden = true
+
             self.captureSession.startRunning()
         }))
         self.present(alertController, animated: true, completion: nil)
 
         
-        let image = UIImage(data: imageData)
-        captureImageView.image = image
     }
 }
