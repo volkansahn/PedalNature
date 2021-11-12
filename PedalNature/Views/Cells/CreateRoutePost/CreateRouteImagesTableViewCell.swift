@@ -82,12 +82,13 @@ final class CreateRouteImagesTableViewCell: UITableViewCell {
                                    width: contentView.width,
                                    height: pageControlHeight)
     }
-    
-    public func configure(with images: [RouteImage]){
+    /*
+    public func configure(with images: [Any]){
         imagelist = images
         pageControl.numberOfPages = imagelist.count
         pageControl.isHidden = !(imagelist.count > 1)
     }
+     */
 
 }
 

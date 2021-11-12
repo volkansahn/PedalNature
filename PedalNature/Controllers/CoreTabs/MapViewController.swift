@@ -8,12 +8,13 @@
 import UIKit
 import MapKit
 import CoreLocation
+import MobileCoreServices
+import Photos
 /// Map Tab
 
 final class MapViewController: UIViewController {
     
     private var mapView = MKMapView()
-    private var imagePickerController: UIImagePickerController?
     private var timer = Timer()
     private var counter = 0
     
@@ -234,10 +235,33 @@ final class MapViewController: UIViewController {
     
     @objc func cameraPressed(){
         pausePressed()
-        let vc = CameraViewController()
-        vc.location = locationArray.last!
-        vc.modalPresentationStyle = .fullScreen
-        self.navigationController?.pushViewController(vc, animated: true)
+
+        setImagePicker()
+        
+    }
+
+    private func setImagePicker(){
+        let pickerController = UIImagePickerController()
+         // Part 1: File origin
+        pickerController.sourceType = .camera
+        
+        // Must import `MobileCoreServices`
+        // Part 2: Define if photo or/and video is going to be captured by camera
+        pickerController.mediaTypes = [kUTTypeMovie as String, kUTTypeImage as String]
+        
+        // Part 3: camera settings
+        pickerController.cameraCaptureMode = .photo // Default media type .photo vs .video
+        pickerController.cameraDevice = .rear // rear Vs front
+        pickerController.cameraFlashMode = .on // on, off Vs auto
+        // Part 4: User can optionally crop only a certain part of the image or video with iOS default tools
+        pickerController.allowsEditing = true
+        //Maximum duration = 30 seconds
+        pickerController.videoMaximumDuration = 30
+        // Part 5: For callback of user selection / cancellation
+        pickerController.delegate = self
+
+        // Part 6: Present the UIImagePickerViewController
+        present(pickerController, animated: true, completion: nil)
     }
     
     @objc func pausePressed(){
@@ -574,3 +598,86 @@ extension MapViewController: CLLocationManagerDelegate{
     }
 }
 
+extension MapViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate{
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+
+       // Check for the media type
+      let mediaType = info[UIImagePickerController.InfoKey.mediaType] as! CFString
+      switch mediaType {
+      case kUTTypeImage:
+        // Handle image selection result
+        print("Selected media is image")
+        let editedImage = info[UIImagePickerController.InfoKey.editedImage] as! UIImage
+        // Add to Content Array
+          let routeImage = RouteImage(image: editedImage,videoURL: nil, coordinate: locationCoordinateArray.last!)
+        listOfContent.append(routeImage)
+        let actionSheet = UIAlertController(title: "Save Photo?", message: "Would you like to save image to library ?", preferredStyle: .actionSheet)
+        actionSheet.addAction(UIAlertAction(title: "Save", style: .default, handler: { _ in
+          UIImageWriteToSavedPhotosAlbum(editedImage, self, #selector(self.image(_:didFinishSavingWithError:contextInfo:)), nil)
+        }))
+        actionSheet.addAction(UIAlertAction(title: "No", style: .destructive, handler: { _ in         picker.dismiss(animated: true)
+            self.playPressed()
+        }))
+        self.present(actionSheet,animated: true)
+      case kUTTypeMovie:
+        // Handle video selection result
+        print("Selected media is video")
+        let videoURL = info[UIImagePickerController.InfoKey.mediaURL] as! URL
+        // Add to Content Array
+          let routeVideo = RouteImage(image: nil,videoURL: videoURL, coordinate: locationCoordinateArray.last!)
+        listOfContent.append(routeVideo)
+          /*
+        let actionSheet = UIAlertController(title: "Save Video?", message: "Would you like to save video to library ?", preferredStyle: .actionSheet)
+        actionSheet.addAction(UIAlertAction(title: "Save", style: .default, handler: { _ in
+            writeVideoAtPath(toSavedPhotosAlbum: videoURL, completionBlock: {
+            (nsurl, error) -> Void in
+            if let theError = error{
+                let ac = UIAlertController(title: "Save error", message: error.localizedDescription, preferredStyle: .alert)
+                ac.addAction(UIAlertAction(title: "OK", style: .default))
+                present(ac, animated: true)
+            }
+            else {
+                let ac = UIAlertController(title: "Saved!", message: "Your Video has been saved to your album.", preferredStyle: .alert)
+                ac.addAction(UIAlertAction(title: "OK", style: .default))
+                present(ac, animated: true)
+            }
+             self.dismiss(animated: true, completion: {
+               self.playPressed()
+             })
+            
+        })
+
+
+        }))
+        actionSheet.addAction(UIAlertAction(title: "No", style: .destructive, handler: { _ in         picker.dismiss(animated: true)
+            self.playPressed()
+        }))
+        self.present(actionSheet,animated: true)
+           */
+      default:
+        print("Mismatched type: \(mediaType)")
+      }
+
+      picker.dismiss(animated: true, completion: nil)
+
+    }
+    
+    @objc func image(_ image: UIImage, didFinishSavingWithError error: Error?, contextInfo: UnsafeRawPointer) {
+        if let error = error {
+            // we got back an error!
+            let ac = UIAlertController(title: "Save error", message: error.localizedDescription, preferredStyle: .alert)
+            ac.addAction(UIAlertAction(title: "OK", style: .default))
+            present(ac, animated: true)
+        } else {
+            let ac = UIAlertController(title: "Saved!", message: "Your image has been saved to your album.", preferredStyle: .alert)
+            ac.addAction(UIAlertAction(title: "OK", style: .default))
+            present(ac, animated: true)
+        }
+    playPressed()
+    }
+
+    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+      // Dismiss the picker since it is not dismissed automatically
+      picker.dismiss(animated: true, completion: nil)
+    }
+}

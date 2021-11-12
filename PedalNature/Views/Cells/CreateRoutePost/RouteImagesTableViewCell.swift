@@ -83,9 +83,10 @@ final class RouteImagesTableViewCell: UITableViewCell {
         
         // Turn on video controlls
         avPlayerController.showsPlaybackControls = true
-        
         // play video
         avPlayerController.player?.play()
+        
+
 
     }
     
@@ -129,7 +130,7 @@ final class RouteImagesTableViewCell: UITableViewCell {
          let mapContainerWidth = 100
          
         mapContainerView.frame = CGRect(x: Int(routeImageView.width)-mapContainerWidth-20,
-                                        y: Int(routeImageView.bottom) - mapContainerHeight-20,
+                                        y: Int(routeImageView.bottom) - mapContainerHeight-40,
                                         width: mapContainerWidth,
                                         height: mapContainerHeight)
         

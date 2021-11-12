@@ -109,6 +109,7 @@ final class HomeTabTableViewCell: UITableViewCell {
     }()
     
     // MARK: Route Image Section
+    /*
     private let homeImageView : UIImageView = {
         let imageview = UIImageView()
         imageview.contentMode = .scaleAspectFill
@@ -117,7 +118,13 @@ final class HomeTabTableViewCell: UITableViewCell {
         return imageview
         
     }()
-    
+    */
+    private var ContentTableViewCell : UITableView = {
+        let tableView = UITableView()
+        tableView.register(CreateRouteImagesTableViewCell.self, forCellReuseIdentifier: CreateRouteImagesTableViewCell.identifier)
+        return tableView
+    }()
+
     // MARK: Action Section
     private let likeButton :UIButton = {
         let button = UIButton()
@@ -145,6 +152,11 @@ final class HomeTabTableViewCell: UITableViewCell {
         return label
     }()
     
+    private let elevationGrapImageView : UIImageView = {
+        let imageView = UIImageView()
+        imageView.contentMode = .scaleAspectFill
+        return imageView
+    }()
     // MARK: After Variable Decleration
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?){
@@ -156,8 +168,10 @@ final class HomeTabTableViewCell: UITableViewCell {
         contentView.addSubview(locationAndDateLabel)
         
         // MARK: Route Image Section
-        contentView.addSubview(homeImageView)
-        
+        //contentView.addSubview(homeImageView)
+        contentView.addSubview(ContentTableViewCell)
+        ContentTableViewCell.delegate = self
+        ContentTableViewCell.dataSource = self
         // MARK: Route Name and Tag Section
         contentView.addSubview(containerView)
         contentView.addSubview(withLabel)
@@ -186,6 +200,7 @@ final class HomeTabTableViewCell: UITableViewCell {
         contentView.addSubview(likeButton)
         contentView.addSubview(commentButton)
         contentView.addSubview(likeAndCommentNumberLabel)
+        contentView.addSubview(elevationGrapImageView)
         likeButton.addTarget(self,
                              action: #selector(didTapLikeButton),
                              for: .touchUpInside)
@@ -246,39 +261,44 @@ final class HomeTabTableViewCell: UITableViewCell {
                                             height: CGFloat((size/2) - 5))
         
         // MARK: Route Image Section
+        /*
         homeImageView.frame = CGRect(x: 0,
                                      y: userPhotoImageView.bottom,
                                      width: routeImageSectionHeight,
                                      height: routeImageSectionHeight)
-        
+        */
+        ContentTableViewCell.frame = CGRect(x: 0,
+                                     y: userPhotoImageView.bottom,
+                                     width: routeImageSectionHeight,
+                                     height: routeImageSectionHeight)
         // MARK: Route Tag and Name Section
         let tagPhotoSize = routeandTagSectionHeight/2.0
         
         containerView.frame = CGRect(x: contentView.width-20.0-4*tagPhotoSize,
-                                     y: homeImageView.bottom - tagPhotoSize-20,
+                                     y: ContentTableViewCell.bottom - tagPhotoSize-20,
                                      width: 4*tagPhotoSize,
                                      height: tagPhotoSize+10)
         containerView.layer.cornerRadius = 10
         
         withLabel.frame = CGRect(x: contentView.width-4*tagPhotoSize,
-                                 y: homeImageView.bottom-tagPhotoSize-15,
+                                 y: ContentTableViewCell.bottom-tagPhotoSize-15,
                                  width: tagPhotoSize,
                                  height: tagPhotoSize)
         
         firstTagPhotoImageView.frame = CGRect(x:Double(withLabel.right),
-                                              y:Double(homeImageView.bottom)-tagPhotoSize-15,
+                                              y:Double(ContentTableViewCell.bottom)-tagPhotoSize-15,
                                               width: tagPhotoSize,
                                               height: tagPhotoSize)
         firstTagPhotoImageView.layer.cornerRadius = CGFloat(tagPhotoSize/2)
         
         secondTagPhotoImageView.frame = CGRect(x:Double(withLabel.right) + tagPhotoSize/4,
-                                               y:Double(homeImageView.bottom)-tagPhotoSize-15,
+                                               y:Double(ContentTableViewCell.bottom)-tagPhotoSize-15,
                                                width: tagPhotoSize,
                                                height: tagPhotoSize)
         secondTagPhotoImageView.layer.cornerRadius = CGFloat(tagPhotoSize/2)
         
         moreTagLabel.frame = CGRect(x: Double(secondTagPhotoImageView.right) + 5,
-                                    y: Double(homeImageView.bottom)-tagPhotoSize-15,
+                                    y: Double(ContentTableViewCell.bottom)-tagPhotoSize-15,
                                     width: tagPhotoSize,
                                     height: tagPhotoSize)
         
@@ -287,12 +307,12 @@ final class HomeTabTableViewCell: UITableViewCell {
         // MARK: Action Section
         let actionButtonSize = (actionSectionHeight/2)-5
         likeButton.frame = CGRect(x: 5,
-                                  y: Int(homeImageView.bottom)+10,
+                                  y: Int(ContentTableViewCell.bottom)+10,
                                   width: actionButtonSize + 15,
                                   height: actionButtonSize + 5)
         
         commentButton.frame = CGRect(x: Int(likeButton.right) + 20,
-                                     y: Int(homeImageView.bottom)+10,
+                                     y: Int(ContentTableViewCell.bottom)+10,
                                      width: actionButtonSize + 15,
                                      height: actionButtonSize + 5)
         
@@ -300,6 +320,11 @@ final class HomeTabTableViewCell: UITableViewCell {
                                                  y: likeButton.bottom,
                                                  width: contentView.width/2,
                                                  height: CGFloat(actionSectionHeight/2))
+        
+        elevationGrapImageView.frame = CGRect(x: (3*contentView.width)/4,
+                                              y: ContentTableViewCell.bottom+10,
+                                              width: contentView.width/4 - 70,
+                                              height: CGFloat(actionSectionHeight-10))
         
     }
     
@@ -358,7 +383,7 @@ final class HomeTabTableViewCell: UITableViewCell {
             
         }
         // MARK: Route Image
-        homeImageView.image = UIImage(named: "test")
+        //homeImageView.image = UIImage(named: "test")
         
         //let mapImageURL = modal.routeMapImage
         //homeImageView.sd_setImage(with: mapImageURL, completed: nil)
@@ -394,7 +419,9 @@ final class HomeTabTableViewCell: UITableViewCell {
         }else{
             likeAndCommentNumberLabel.text = "\(modal.likeCount.count) \(likeString) and \(modal.comments.count) \(commentString)"
         }
-      
+        
+        //elevationGrapImageView.sd_setImage(with: modal.elevationGraph, completed: nil)
+        elevationGrapImageView.image = UIImage(named: "elevationtest")
     }
     
     override func prepareForReuse() {
@@ -405,4 +432,26 @@ final class HomeTabTableViewCell: UITableViewCell {
         moreTagLabel.isHidden = true
     }
 
+}
+
+extension HomeTabTableViewCell: UITableViewDelegate, UITableViewDataSource{
+    
+    func numberOfSections(in tableView: UITableView) -> Int {
+        return 1
+    }
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return 1
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+       
+        let cell = tableView.dequeueReusableCell(withIdentifier: CreateRouteImagesTableViewCell.identifier, for: indexPath) as! CreateRouteImagesTableViewCell
+        let images = [routeModal?.elevationGraph, routeModal?.velocityGraph, routeModal?.routeMapImage]
+        //cell.configure(with: images)
+        //cell.delegate = self
+        return cell
+   
+    }
+  
 }
