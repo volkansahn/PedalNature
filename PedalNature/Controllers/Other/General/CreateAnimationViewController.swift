@@ -318,11 +318,15 @@ class CreateAnimationViewController: UIViewController {
         avPlayerController.player = avPlayer
         
         // Turn on video controlls
-        avPlayerController.showsPlaybackControls = true
+        avPlayerController.showsPlaybackControls = false
         
         // play video
         avPlayerController.player?.play()
-
+        
+        self.tabBarController?.tabBar.isHidden = true
+        
+        avPlayerController.exitsFullScreenWhenPlaybackEnds = true
+        
     }
 }
 
@@ -455,6 +459,7 @@ private extension CreateAnimationViewController {
                                    animations: {
                         for image in self.images{
                           if image.coordinate == curentCoord{
+                              print("burada")
                             self.photoImageView.isHidden = false
                               self.photoImageView.image = image.image
                           }
@@ -475,12 +480,13 @@ private extension CreateAnimationViewController {
                         for image in self.images{
                           if image.coordinate == curentCoord{
                             self.avPlayerController.view.isHidden = false
-                              //self.preparePlayer(with: image.videoURL!)
+                            self.preparePlayer(with: image.videoURL!)
                           }
                         }
                       
                     }, completion: { finished in
                         if finished{
+                            self.tabBarController?.tabBar.isHidden = false
                             self.avPlayerController.view.isHidden = true
                             self.routeAnimate(duration: self.duration)
                         }

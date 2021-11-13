@@ -4,7 +4,6 @@
 //
 //  Created by Volkan on 12.10.2021.
 //
-
 import UIKit
 
 final class CreateRouteImagesTableViewCell: UITableViewCell {
@@ -18,7 +17,7 @@ final class CreateRouteImagesTableViewCell: UITableViewCell {
     }()
     private var collectionView: UICollectionView?
     private let pageControl = UIPageControl()
-    private var imagelist = [RouteImage]()
+    public var imagelist = [RouteImage]()
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?){
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -82,13 +81,10 @@ final class CreateRouteImagesTableViewCell: UITableViewCell {
                                    width: contentView.width,
                                    height: pageControlHeight)
     }
-    /*
-    public func configure(with images: [Any]){
+    
+    public func configure(with images: [RouteImage]){
         imagelist = images
-        pageControl.numberOfPages = imagelist.count
-        pageControl.isHidden = !(imagelist.count > 1)
     }
-     */
 
 }
 
@@ -103,7 +99,7 @@ extension CreateRouteImagesTableViewCell: UICollectionViewDelegate, UICollection
         //let modal = userRoutes[indexPath.row]
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: HorizontalImageSliderCollectionViewCell.identifier, for: indexPath) as! HorizontalImageSliderCollectionViewCell
         //cell.configure(with: modal)
-        cell.configure(with: imagelist[indexPath.row], imagelist: imagelist)
+        cell.configure(with: imagelist[indexPath.row])
         return cell
     }
     

@@ -21,7 +21,7 @@ final class RouteImagesTableViewCell: UITableViewCell {
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
         imageView.backgroundColor = nil
-        imageView.isHidden = true
+        imageView.isHidden = false
         return imageView
     }()
     
@@ -29,7 +29,7 @@ final class RouteImagesTableViewCell: UITableViewCell {
         let view = UIView()
         view.backgroundColor = .systemBackground
         view.layer.masksToBounds = true
-        view.alpha = 0.75
+        view.alpha = 0.6
         return view
     }()
     
@@ -72,7 +72,8 @@ final class RouteImagesTableViewCell: UITableViewCell {
         contentView.addSubview(mapView)
         contentView.addSubview(useNotUseImageButton)
         contentView.addSubview(dimmedView)
-        
+        useNotUseImageButton.addTarget(self, action: #selector(useNotUseImageButtonPressed), for: .touchUpInside)
+        mapView.alpha = 0.6
     }
     
     private func preparePlayer(with fileURL: URL) {
@@ -126,18 +127,18 @@ final class RouteImagesTableViewCell: UITableViewCell {
                                       height: contentView.height - CGFloat(buttonHeight) - 10)
         avPlayerController.view.frame = routeImageView.frame
         
-         let mapContainerHeight = 50
-         let mapContainerWidth = 100
+         let mapContainerHeight = 75
+         let mapContainerWidth = 150
          
         mapContainerView.frame = CGRect(x: Int(routeImageView.width)-mapContainerWidth-20,
                                         y: Int(routeImageView.bottom) - mapContainerHeight-40,
                                         width: mapContainerWidth,
                                         height: mapContainerHeight)
         
-        mapView.frame = CGRect(x: Int(mapContainerView.left) + 5,
-                               y: Int(mapContainerView.top) + 5,
-                               width: mapContainerWidth-10,
-                               height: mapContainerHeight-10)
+        mapView.frame = CGRect(x: Int(mapContainerView.left) + 2,
+                               y: Int(mapContainerView.top) + 2,
+                               width: mapContainerWidth-4,
+                               height: mapContainerHeight-4)
          
         
         useNotUseImageButton.frame = CGRect(x: contentView.width/2 - CGFloat(buttonWidth/2),
@@ -150,10 +151,8 @@ final class RouteImagesTableViewCell: UITableViewCell {
     }
     
     public func configure(image: RouteImage, locationCoordinates: [CLLocationCoordinate2D], locations : [CLLocation]){
-        
         if image.image != nil{
             routeMapImageView.isHidden = false
-            print(image.image?.size)
             avPlayerController.view.isHidden = true
             routeImageView.image = image.image
             
@@ -174,19 +173,20 @@ final class RouteImagesTableViewCell: UITableViewCell {
             coordinates = locationCoordinates
             syncedLocations = locations
         }
-        let midLocation = coordinates[(coordinates.count/2)]
         let startLocation = syncedLocations.first!
         let endLocation = syncedLocations.last!
         let delta: CLLocationDistance = startLocation.distance(from: endLocation)
-        let regionRadius : CLLocationDistance = delta + 500
-        
+        let regionRadius : CLLocationDistance = delta + 1000
+        let currentSegment = MKPolyline(coordinates: coordinates, count: coordinates.count)
+
         let coordinateRegion = MKCoordinateRegion(
-            center: midLocation,
+            center: image.coordinate,
             latitudinalMeters: regionRadius,
             longitudinalMeters: regionRadius)
         
         mapView.setRegion(coordinateRegion, animated: true)
-        
+        mapView.addOverlay(currentSegment)
+
         addAnnotations(image : image)
         return
         

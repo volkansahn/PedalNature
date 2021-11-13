@@ -4,14 +4,12 @@
 //
 //  Created by Volkan on 24.09.2021.
 //
-
 import UIKit
 import MapKit
 import CoreLocation
 import MobileCoreServices
 import Photos
 /// Map Tab
-
 final class MapViewController: UIViewController {
     
     private var mapView = MKMapView()
@@ -252,7 +250,7 @@ final class MapViewController: UIViewController {
         // Part 3: camera settings
         pickerController.cameraCaptureMode = .photo // Default media type .photo vs .video
         pickerController.cameraDevice = .rear // rear Vs front
-        pickerController.cameraFlashMode = .on // on, off Vs auto
+        pickerController.cameraFlashMode = .auto // on, off Vs auto
         // Part 4: User can optionally crop only a certain part of the image or video with iOS default tools
         pickerController.allowsEditing = true
         //Maximum duration = 30 seconds
@@ -609,55 +607,23 @@ extension MapViewController: UIImagePickerControllerDelegate, UINavigationContro
         print("Selected media is image")
         let editedImage = info[UIImagePickerController.InfoKey.editedImage] as! UIImage
         // Add to Content Array
-          let routeImage = RouteImage(image: editedImage,videoURL: nil, coordinate: locationCoordinateArray.last!)
+        let routeImage = RouteImage(image: editedImage,videoURL: nil, coordinate: locationCoordinateArray.last!)
         listOfContent.append(routeImage)
-        let actionSheet = UIAlertController(title: "Save Photo?", message: "Would you like to save image to library ?", preferredStyle: .actionSheet)
-        actionSheet.addAction(UIAlertAction(title: "Save", style: .default, handler: { _ in
-          UIImageWriteToSavedPhotosAlbum(editedImage, self, #selector(self.image(_:didFinishSavingWithError:contextInfo:)), nil)
-        }))
-        actionSheet.addAction(UIAlertAction(title: "No", style: .destructive, handler: { _ in         picker.dismiss(animated: true)
-            self.playPressed()
-        }))
-        self.present(actionSheet,animated: true)
+        UIImageWriteToSavedPhotosAlbum(editedImage, self, #selector(self.image(_:didFinishSavingWithError:contextInfo:)), nil)
       case kUTTypeMovie:
         // Handle video selection result
         print("Selected media is video")
         let videoURL = info[UIImagePickerController.InfoKey.mediaURL] as! URL
         // Add to Content Array
-          let routeVideo = RouteImage(image: nil,videoURL: videoURL, coordinate: locationCoordinateArray.last!)
+        let routeVideo = RouteImage(image: nil,videoURL: videoURL, coordinate: locationCoordinateArray.last!)
         listOfContent.append(routeVideo)
-          /*
-        let actionSheet = UIAlertController(title: "Save Video?", message: "Would you like to save video to library ?", preferredStyle: .actionSheet)
-        actionSheet.addAction(UIAlertAction(title: "Save", style: .default, handler: { _ in
-            writeVideoAtPath(toSavedPhotosAlbum: videoURL, completionBlock: {
-            (nsurl, error) -> Void in
-            if let theError = error{
-                let ac = UIAlertController(title: "Save error", message: error.localizedDescription, preferredStyle: .alert)
-                ac.addAction(UIAlertAction(title: "OK", style: .default))
-                present(ac, animated: true)
-            }
-            else {
-                let ac = UIAlertController(title: "Saved!", message: "Your Video has been saved to your album.", preferredStyle: .alert)
-                ac.addAction(UIAlertAction(title: "OK", style: .default))
-                present(ac, animated: true)
-            }
-             self.dismiss(animated: true, completion: {
-               self.playPressed()
-             })
-            
-        })
-
-
-        }))
-        actionSheet.addAction(UIAlertAction(title: "No", style: .destructive, handler: { _ in         picker.dismiss(animated: true)
-            self.playPressed()
-        }))
-        self.present(actionSheet,animated: true)
-           */
+          saveVideoToAlbum(videoURL, { error in
+              if (error != nil){
+                  print(error)
+              }})
       default:
         print("Mismatched type: \(mediaType)")
       }
-
       picker.dismiss(animated: true, completion: nil)
 
     }
@@ -674,6 +640,36 @@ extension MapViewController: UIImagePickerControllerDelegate, UINavigationContro
             present(ac, animated: true)
         }
     playPressed()
+    }
+
+    func requestAuthorization(completion: @escaping ()->Void) {
+        if PHPhotoLibrary.authorizationStatus() == .notDetermined {
+            PHPhotoLibrary.requestAuthorization { (status) in
+                DispatchQueue.main.async {
+                    completion()
+                }
+            }
+        } else if PHPhotoLibrary.authorizationStatus() == .authorized{
+            completion()
+        }
+    }
+
+    func saveVideoToAlbum(_ outputURL: URL, _ completion: ((Error?) -> Void)?) {
+        requestAuthorization {
+            PHPhotoLibrary.shared().performChanges({
+                let request = PHAssetCreationRequest.forAsset()
+                request.addResource(with: .video, fileURL: outputURL, options: nil)
+            }) { (result, error) in
+                DispatchQueue.main.async {
+                    if let error = error {
+                        print(error.localizedDescription)
+                    } else {
+                        print("Saved successfully")
+                    }
+                    completion?(error)
+                }
+            }
+        }
     }
 
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {

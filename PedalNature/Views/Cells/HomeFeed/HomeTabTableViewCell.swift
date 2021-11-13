@@ -5,6 +5,7 @@
 //  Created by Volkan on 15.10.2021.
 //
 import UIKit
+import CoreLocation
 import SDWebImage
 
 protocol HomeTabTableViewCellDelegate: AnyObject{
@@ -447,8 +448,13 @@ extension HomeTabTableViewCell: UITableViewDelegate, UITableViewDataSource{
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
        
         let cell = tableView.dequeueReusableCell(withIdentifier: CreateRouteImagesTableViewCell.identifier, for: indexPath) as! CreateRouteImagesTableViewCell
-        let images = [routeModal?.elevationGraph, routeModal?.velocityGraph, routeModal?.routeMapImage]
-        //cell.configure(with: images)
+        /*
+        let images = routeModal.routeContent
+        images.append(RouteImage(image:routeModal.routeMapImage, videoURL:nil, cordinate: CLLocation2DCoordnate()))
+        */
+        //Add content
+        let testImages = [RouteImage(image: nil, videoURL: nil, coordinate: CLLocationCoordinate2D()),RouteImage(image: nil, videoURL: nil, coordinate: CLLocationCoordinate2D())]
+        //cell.configure(with: testImages)
         //cell.delegate = self
         return cell
    
