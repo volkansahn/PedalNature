@@ -1,0 +1,525 @@
+//
+//  CreateAnimationTableViewCell.swift
+//  PedalNature
+//
+//  Created by Volkan on 14.11.2021.
+//
+
+import UIKit
+import MapKit
+import CoreLocation
+import Charts
+import AVKit
+
+class CreateAnimationTableViewCell: UITableViewCell {
+
+    // MARK: Variable Decleration
+    
+    static let identifier = "CreateAnimationTableViewCell"
+        
+    private var animatedMapView = MKMapView()
+    private var drawingTimer: Timer?
+    private var polyline: MKPolyline?
+    
+    private var maxEleLocationCoordinate : CLLocationCoordinate2D?
+    private var maxSpeedLocationCoordinate : CLLocationCoordinate2D?
+    
+    private var maxSpeed = 0.0
+    private var maxElevation = 0.0
+    
+    public var routeCoordinate = [CLLocationCoordinate2D]()
+    public var routeLocations = [CLLocation]()
+    public var routeImages = [RouteImage]()
+    
+    private var annotations = [MKPointAnnotation]()
+    private var annotationCoords = [CLLocationCoordinate2D]()
+    
+    private var showLabel : UILabel = {
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 24, weight: .heavy)
+        label.textColor = .label
+        label.textAlignment = .center
+        label.frame = CGRect(x: 0,
+                             y: 0,
+                             width: 150,
+                             height: 150)
+        return label
+    }()
+    
+    private let containerView : UIView = {
+        let view = UIView()
+        return view
+    }()
+    
+    let selectionLabel = ["Speed Gauge", "Elevation Graph", "Duration", "Distance"]
+    
+    private var animationSelectionTableView : UITableView = {
+        let tableView = UITableView()
+        tableView.register(AnimationSelectionTableViewCell.self, forCellReuseIdentifier: AnimationSelectionTableViewCell.identifier)
+        tableView.isScrollEnabled = false
+        return tableView
+    }()
+    
+    private let actionContainerView : UIView = {
+        let view = UIView()
+        view.backgroundColor = .secondarySystemBackground
+        return view
+    }()
+    
+    
+    private let speedGaugeLabel : UILabel = {
+        let label = UILabel()
+        label.textColor = .label
+        label.text = "Speed"
+        label.isHidden = true
+        return label
+    }()
+    
+    private let elevationGraphLabel : UILabel = {
+        let label = UILabel()
+        label.textColor = .label
+        label.text = "Elevation"
+        label.isHidden = true
+        return label
+    }()
+    
+    private let durationIndicatorLabel : UILabel = {
+        let label = UILabel()
+        label.textColor = .label
+        label.text = "Duration"
+        label.isHidden = true
+        return label
+    }()
+    
+    private let distanceIndicatorLabel : UILabel = {
+        let label = UILabel()
+        label.textColor = .label
+        label.text = "Distance"
+        label.isHidden = true
+        return label
+    }()
+    
+    private let shareButton : UIButton = {
+        let button = UIButton()
+        button.setTitle("Share", for: .normal)
+        button.layer.masksToBounds = true
+        button.layer.cornerRadius = Constants.cornerRadius
+        button.backgroundColor = UIColor(rgb: 0x5da973)
+        button.setTitleColor(.white, for: .normal)
+        return button
+    }()
+    
+    let buttonHeight = 52.0
+    let buttonWidth = 100.0
+    lazy var bottomHeight = contentView.safeAreaLayoutGuide.layoutFrame.size.height
+    
+    public var duration = 10.0
+    var currentStep = 1
+    private var timer = Timer()
+    var counter = 0
+    var totalCount = 0.0
+    public var durationTimer : String?
+    public var isFinished = false
+    
+    private let elevationChartView : LineChartView = {
+        let lineChartView = LineChartView()
+        lineChartView.isHidden = true
+        lineChartView.backgroundColor = .none
+        lineChartView.alpha = 0.6
+        lineChartView.legend.enabled = false
+        lineChartView.rightAxis.enabled = false
+        lineChartView.isUserInteractionEnabled = false
+        lineChartView.drawBordersEnabled = false
+        
+        let yAxis = lineChartView.leftAxis
+        yAxis.drawLabelsEnabled = false
+        yAxis.drawAxisLineEnabled = false
+        yAxis.drawGridLinesEnabled = false
+        
+        lineChartView.xAxis.labelPosition = .bottom
+        lineChartView.xAxis.drawLabelsEnabled = false
+        lineChartView.xAxis.drawAxisLineEnabled = false
+        lineChartView.xAxis.drawGridLinesEnabled = false
+        return lineChartView
+    }()
+    public var isElevationAvailable = false
+    public var ElevationEntries = [ChartDataEntry]()
+    //Show Picture
+    private let routeImageView : UIImageView = {
+        let imageView = UIImageView()
+        imageView.contentMode = .scaleAspectFill
+        imageView.clipsToBounds = true
+        imageView.backgroundColor = nil
+        return imageView
+    }()
+    //Show Video
+    var avPlayer: AVPlayer!
+    let avPlayerController = AVPlayerViewController()
+    
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?){
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
+        contentView.backgroundColor = .systemBackground
+        // MARK: User Info Section
+        contentView.addSubview(routeImageView)
+        
+    }
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        
+        routeImageView.frame = CGRect(x: 10,
+                                      y: 10,
+                                      width: contentView.width - 20,
+                                      height: (contentView.height - 20)/3)
+    }
+    
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    public func configure(images: [RouteImage],  route : [CLLocationCoordinate2D], locations : [CLLocation]){
+        routeCoordinate = route
+        routeLocations = locations
+        routeImages = images
+    }
+    
+    override func prepareForReuse() {
+        super.prepareForReuse()
+    }
+    
+    private func preparePlayer(with fileURL: URL) {
+        
+        avPlayer = AVPlayer(url: fileURL)
+        
+        avPlayerController.player = avPlayer
+        
+        // Turn on video controlls
+        avPlayerController.showsPlaybackControls = false
+        
+        // play video
+        avPlayerController.player?.play()
+                
+        avPlayerController.exitsFullScreenWhenPlaybackEnds = true
+        
+    }
+
+}
+
+extension CreateAnimationTableViewCell: UITableViewDelegate, UITableViewDataSource{
+    
+    func numberOfSections(in tableView: UITableView) -> Int {
+        return 1
+    }
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return 1
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+       
+        let cell = tableView.dequeueReusableCell(withIdentifier: CreateRouteImagesTableViewCell.identifier, for: indexPath) as! CreateRouteImagesTableViewCell
+        /*
+        let images = routeModal.routeContent
+        images.append(RouteImage(image:routeModal.routeMapImage, videoURL:nil, cordinate: CLLocation2DCoordnate()))
+        */
+        //Add content
+        let testImages = [RouteImage(image: nil, videoURL: nil, coordinate: CLLocationCoordinate2D()),RouteImage(image: nil, videoURL: nil, coordinate: CLLocationCoordinate2D())]
+        //cell.configure(with: testImages)
+        //cell.delegate = self
+        return cell
+   
+    }
+  
+}
+
+extension CreateAnimationTableViewCell: MKMapViewDelegate {
+    func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
+        guard let polyline = overlay as? MKPolyline else {
+            return MKOverlayRenderer()
+        }
+        
+        let polylineRenderer = MKPolylineRenderer(overlay: polyline)
+        polylineRenderer.strokeColor = UIColor(rgb: 0x5da973)
+        polylineRenderer.lineWidth = 4
+        return polylineRenderer
+    }
+    
+    func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
+        let annotationView = MKMarkerAnnotationView(annotation: annotation, reuseIdentifier: "MyMarker")
+        annotationView.titleVisibility = .hidden
+        switch annotation.title! {
+        case "Start":
+            annotationView.markerTintColor = UIColor(rgb: 0xe7e7e7)
+            annotationView.glyphImage = UIImage(named: "Start")
+            annotationView.glyphImage!.withRenderingMode(.alwaysOriginal)
+        case "End":
+            annotationView.markerTintColor = UIColor(rgb: 0xe7e7e7)
+            annotationView.glyphImage = UIImage(named: "End")
+            annotationView.glyphImage!.withRenderingMode(.alwaysOriginal)
+        case "MaxElevation":
+            annotationView.markerTintColor = UIColor(rgb: 0xe7e7e7)
+            annotationView.glyphImage = UIImage(named: "MaxElevation")
+            annotationView.glyphImage!.withRenderingMode(.alwaysOriginal)
+        case "MaxSpeed":
+            annotationView.markerTintColor = UIColor(rgb: 0xe7e7e7)
+            annotationView.glyphImage = UIImage(named: "MaxSpeed")
+            annotationView.glyphImage!.withRenderingMode(.alwaysOriginal)
+        case "Image":
+            annotationView.markerTintColor = UIColor(rgb: 0xe7e7e7)
+            annotationView.glyphImage = UIImage(named: "Image")
+            annotationView.glyphImage!.withRenderingMode(.alwaysOriginal)
+        case "Video":
+            annotationView.markerTintColor = UIColor(rgb: 0xe7e7e7)
+            annotationView.glyphImage = UIImage(named: "Image")
+            annotationView.glyphImage!.withRenderingMode(.alwaysOriginal)
+        default:
+            annotationView.markerTintColor = UIColor.blue
+        }
+        return annotationView
+    }
+}
+/*
+extension CreateAnimationViewController: UITableViewDelegate, UITableViewDataSource{
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return selectionLabel.count
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: AnimationSelectionTableViewCell.identifier) as! AnimationSelectionTableViewCell
+        cell.configure(with: selectionLabel[indexPath.row])
+        cell.delegate = self
+        return cell
+        
+    }
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 50.0
+    }
+    
+}
+
+extension CreateAnimationTableViewCell: AnimationSelectionTableViewCellDelegate{
+    func switchTriggered(switchLabel : String, state: Bool) {
+        switch switchLabel{
+        case "Speed Gauge":
+            speedGaugeLabel.isHidden = !state
+        case "Elevation Graph":
+            isElevationAvailable = state
+        case "Duration":
+            durationIndicatorLabel.isHidden = !state
+        case "Distance":
+            distanceIndicatorLabel.isHidden = !state
+        default:
+            fatalError("Shouldn't be here")
+        }
+    }
+    
+}
+ */
+
+private extension CreateAnimationTableViewCell {
+    func center(onRoute route: [CLLocationCoordinate2D], fromDistance km: Double) {
+        let center = MKPolyline(coordinates: route, count: route.count).coordinate
+        animatedMapView.setCamera(MKMapCamera(lookingAtCenter: center, fromDistance: 2000, pitch: 0, heading: 0), animated: false)
+    }
+    
+    func routeAnimate(duration: TimeInterval) {
+        
+        guard route.count > 0 else { return }
+        
+        let totalSteps = route.count
+        let stepDrawDuration = duration/TimeInterval(totalSteps)
+        timer = Timer.scheduledTimer(timeInterval: stepDrawDuration, target: self, selector: #selector(animate), userInfo: nil, repeats: true)
+        
+    }
+    
+    @objc func animate(){
+        //Duration
+        counter = counter + Int((totalCount/duration)*(duration/Double(route.count)))
+        let second = counter%60
+        let minutes = counter/60
+        let hours = counter/3600
+
+        durationIndicatorLabel.text = String(format: "%02d:%02d:%02d", hours, minutes, second)
+        
+        animatedMapView.setCamera(MKMapCamera(lookingAtCenter: route[currentStep-1], fromDistance: 200, pitch: 0, heading: 0), animated: true)
+        
+        let totalSteps = route.count
+        var previousSegment: MKPolyline?
+        
+        if let previous = previousSegment {
+            // Remove last drawn segment if needed.
+            animatedMapView.removeOverlay(previous)
+            previousSegment = nil
+        }
+        
+        guard currentStep < totalSteps else {
+            // If this is the last animation step...
+            let finalPolyline = MKPolyline(coordinates: route, count: route.count)
+            animatedMapView.addOverlay(finalPolyline)
+            let location = locations.last!
+            let distanceFromStart = location.distance(from: self.locations.first!)/1000.rounded(toPlaces: 2)
+            let centerCoor = MKPolyline(coordinates: route, count: route.count).coordinate
+            // Assign the final polyline instance to the class property.
+            polyline = finalPolyline
+            DispatchQueue.main.async {
+                UIView.animate(withDuration: 2.0,
+                               delay: 0.0,
+                               options: [],
+                               animations: {
+                    self.showLabel.text = "End"
+                    self.showLabel.fadeIn()
+                    self.animatedMapView.setCamera(MKMapCamera(lookingAtCenter: centerCoor, fromDistance: distanceFromStart*1000, pitch: 0, heading: 0), animated: true)
+                    self.isFinished = true
+                    self.timer.invalidate()
+                    
+                }, completion: { [self] finished in
+                    if finished{
+                        showLabel.fadeOut()
+                        animatedMapView.setCamera(MKMapCamera(lookingAtCenter: centerCoor, fromDistance: distanceFromStart*1000, pitch: 0, heading: 0), animated: true)
+                    }
+                })
+            }
+            return
+        }
+        
+        // Animation step.
+        // The current segment to draw consists of a coordinate array from 0 to the 'currentStep' taken from the route.
+        let subCoordinates = Array(route.prefix(upTo: currentStep))
+        let currentSegment = MKPolyline(coordinates: subCoordinates, count: subCoordinates.count)
+        
+        //Check Annotation
+        let curentCoord = route[currentStep-1]
+        if let index = self.annotationCoords.firstIndex(where:{$0 == curentCoord}){
+            timer.invalidate()
+            if annotations[index].title == "Start"{
+                DispatchQueue.main.async {
+                    UIView.animate(withDuration: 3.0,
+                                   delay: 0.0,
+                                   options: [],
+                                   animations: {
+                        self.showLabel.text = "Let's Go"
+                        self.showLabel.fadeIn()
+                    }, completion: { finished in
+                        if finished{
+                            self.showLabel.fadeOut()
+                            self.routeAnimate(duration: self.duration)
+                        }
+                    })
+                }
+                
+            }else if self.annotations[index].title == "MaxElevation"{
+                DispatchQueue.main.async {
+                    UIView.animate(withDuration: 2.0,
+                                   delay: 0.0,
+                                   options: [],
+                                   animations: {
+                        self.showLabel.text =  "\(self.maxElevation)m"
+                        self.showLabel.fadeIn()
+                    }, completion: { finished in
+                        if finished{
+                            self.showLabel.fadeOut()
+                            self.routeAnimate(duration: self.duration)
+                        }
+                    })
+                }
+            }else if self.annotations[index].title == "MaxSpeed"{
+                DispatchQueue.main.async {
+                    UIView.animate(withDuration: 2.0,
+                                   delay: 0.0,
+                                   options: [],
+                                   animations: {
+                        self.showLabel.text =  "\(self.maxSpeed)m/sn"
+                        self.showLabel.fadeIn()
+                    }, completion: { finished in
+                        if finished{
+                            self.showLabel.fadeOut()
+                            self.routeAnimate(duration: self.duration)
+                        }
+                    })
+                }
+            }else if self.annotations[index].title == "Image"{
+                for image in self.images{
+                  if image.coordinate == curentCoord{
+                      self.animatedMapView.isHidden = true
+                      self.routeImageView.isHidden = false
+                      self.routeImageView.image = image.image
+                      print("loaded : \(image.image)")
+                      print("image : \(self.routeImageView.image)")
+                      
+                  }
+                }
+                DispatchQueue.main.async {
+                    UIView.animate(withDuration: 2.0,
+                                   delay: 0.0,
+                                   options: [],
+                                   animations: {
+                        
+                      
+                    }, completion: { finished in
+                        if finished{
+                            //self.animatedMapView.isHidden = false
+                            self.routeImageView.isHidden = true
+                            self.routeAnimate(duration: self.duration)
+                        }
+                    })
+                }
+            }else if self.annotations[index].title == "Video"{
+                DispatchQueue.main.async {
+                    UIView.animate(withDuration: 2.0,
+                                   delay: 0.0,
+                                   options: [],
+                                   animations: {
+                        for image in self.images{
+                          if image.coordinate == curentCoord{
+                            self.animatedMapView.isHidden = true
+                            self.avPlayerController.view.isHidden = true
+                            self.preparePlayer(with: image.videoURL!)
+                          }
+                        }
+                      
+                    }, completion: { finished in
+                        if finished{
+                            self.animatedMapView.isHidden = false
+                            self.avPlayerController.view.isHidden = true
+                            self.routeAnimate(duration: self.duration)
+                        }
+                    })
+                }
+            }
+        }
+        //Distance
+        let currentLocation = locations[currentStep-1]
+        let distanceFromStart = (currentLocation.distance(from: locations.first!)/1000).rounded(toPlaces: 2)
+        distanceIndicatorLabel.text = String(distanceFromStart)+"km"
+        
+        //Elevation
+        if ElevationEntries.isEmpty == false{
+            let entries = Array(ElevationEntries.prefix(upTo: currentStep))
+            if entries.count > 1 && isElevationAvailable{
+                elevationChartView.isHidden = false
+            }else{
+                elevationChartView.isHidden = true
+            }
+            let set1 = LineChartDataSet(entries: entries, label: "")
+            set1.mode = .cubicBezier
+            set1.drawCirclesEnabled = false
+            set1.lineWidth = 0
+            set1.setColor(.white)
+            set1.fill = Fill(color: .systemBlue)
+            set1.fillAlpha = 1.0
+            set1.drawFilledEnabled = true
+            
+            let data = LineChartData(dataSet: set1)
+            data.setDrawValues(false)
+            elevationChartView.data = data
+            
+        }
+        
+        animatedMapView.addOverlay(currentSegment)
+        previousSegment = currentSegment
+        currentStep += 1
+    }
+    
+}

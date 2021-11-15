@@ -176,7 +176,7 @@ final class RouteImagesTableViewCell: UITableViewCell {
         let startLocation = syncedLocations.first!
         let endLocation = syncedLocations.last!
         let delta: CLLocationDistance = startLocation.distance(from: endLocation)
-        let regionRadius : CLLocationDistance = delta + 1000
+        let regionRadius : CLLocationDistance = 1000
         let currentSegment = MKPolyline(coordinates: coordinates, count: coordinates.count)
 
         let coordinateRegion = MKCoordinateRegion(

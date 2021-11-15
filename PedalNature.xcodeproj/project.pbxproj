@@ -14,6 +14,7 @@
 		E72E44FD2726F59100336734 /* RouteImagesTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E72E44FC2726F59100336734 /* RouteImagesTableViewCell.swift */; };
 		E72E44FF2728446800336734 /* CameraViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E72E44FE2728446800336734 /* CameraViewController.swift */; };
 		E72E45012728457100336734 /* PicturePreviewViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E72E45002728457100336734 /* PicturePreviewViewController.swift */; };
+		E7396E5B2740C5C00052808B /* CreateAnimationTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7396E5A2740C5C00052808B /* CreateAnimationTableViewCell.swift */; };
 		E7534056273B81E500323977 /* TagAndImagesTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7534055273B81E500323977 /* TagAndImagesTableViewCell.swift */; };
 		E76B7CF52715B5EE00A8513F /* CreateRouteInfoTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E76B7CF42715B5EE00A8513F /* CreateRouteInfoTableViewCell.swift */; };
 		E76B7CF72715B61D00A8513F /* CreateRouteTagsTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E76B7CF62715B61D00A8513F /* CreateRouteTagsTableViewCell.swift */; };
@@ -96,6 +97,7 @@
 		E72E44FC2726F59100336734 /* RouteImagesTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RouteImagesTableViewCell.swift; sourceTree = "<group>"; };
 		E72E44FE2728446800336734 /* CameraViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraViewController.swift; sourceTree = "<group>"; };
 		E72E45002728457100336734 /* PicturePreviewViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PicturePreviewViewController.swift; sourceTree = "<group>"; };
+		E7396E5A2740C5C00052808B /* CreateAnimationTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateAnimationTableViewCell.swift; sourceTree = "<group>"; };
 		E7534055273B81E500323977 /* TagAndImagesTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagAndImagesTableViewCell.swift; sourceTree = "<group>"; };
 		E76B7CF42715B5EE00A8513F /* CreateRouteInfoTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateRouteInfoTableViewCell.swift; sourceTree = "<group>"; };
 		E76B7CF62715B61D00A8513F /* CreateRouteTagsTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateRouteTagsTableViewCell.swift; sourceTree = "<group>"; };
@@ -199,6 +201,14 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		E7396E5C274217D40052808B /* CreateAnimation */ = {
+			isa = PBXGroup;
+			children = (
+				E7396E5A2740C5C00052808B /* CreateAnimationTableViewCell.swift */,
+			);
+			path = CreateAnimation;
+			sourceTree = "<group>";
+		};
 		E76B7CF12715B55500A8513F /* CreateRoutePost */ = {
 			isa = PBXGroup;
 			children = (
@@ -249,6 +259,7 @@
 		E785E66B2703AC1400A6ED99 /* Cells */ = {
 			isa = PBXGroup;
 			children = (
+				E7396E5C274217D40052808B /* CreateAnimation */,
 				E76B7CF12715B55500A8513F /* CreateRoutePost */,
 				E785E69A270DC5D300A6ED99 /* ExploreTab */,
 				E785E693270AE9EE00A6ED99 /* PostDetail */,
@@ -615,6 +626,7 @@
 				E79127F326FDF09E0058837F /* HomeViewController.swift in Sources */,
 				E791280826FDF53F0058837F /* SettingsViewController.swift in Sources */,
 				E785E67D27058A4900A6ED99 /* RouteCollectionViewCell.swift in Sources */,
+				E7396E5B2740C5C00052808B /* CreateAnimationTableViewCell.swift in Sources */,
 				E76B7CF52715B5EE00A8513F /* CreateRouteInfoTableViewCell.swift in Sources */,
 				E76B7CF92715B65C00A8513F /* CreateRouteImagesTableViewCell.swift in Sources */,
 			);
