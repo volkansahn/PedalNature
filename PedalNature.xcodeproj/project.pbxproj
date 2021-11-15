@@ -14,7 +14,9 @@
 		E72E44FD2726F59100336734 /* RouteImagesTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E72E44FC2726F59100336734 /* RouteImagesTableViewCell.swift */; };
 		E72E44FF2728446800336734 /* CameraViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E72E44FE2728446800336734 /* CameraViewController.swift */; };
 		E72E45012728457100336734 /* PicturePreviewViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E72E45002728457100336734 /* PicturePreviewViewController.swift */; };
-		E7396E5B2740C5C00052808B /* CreateAnimationTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7396E5A2740C5C00052808B /* CreateAnimationTableViewCell.swift */; };
+		E7396E5B2740C5C00052808B /* CreateAnimationAnimatedMapTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7396E5A2740C5C00052808B /* CreateAnimationAnimatedMapTableViewCell.swift */; };
+		E7396E5E27425E1C0052808B /* CreateAnimationSelectionTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7396E5D27425E1C0052808B /* CreateAnimationSelectionTableViewCell.swift */; };
+		E7396E6027425E510052808B /* CreateAnimationShareActionTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7396E5F27425E510052808B /* CreateAnimationShareActionTableViewCell.swift */; };
 		E7534056273B81E500323977 /* TagAndImagesTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7534055273B81E500323977 /* TagAndImagesTableViewCell.swift */; };
 		E76B7CF52715B5EE00A8513F /* CreateRouteInfoTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E76B7CF42715B5EE00A8513F /* CreateRouteInfoTableViewCell.swift */; };
 		E76B7CF72715B61D00A8513F /* CreateRouteTagsTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E76B7CF62715B61D00A8513F /* CreateRouteTagsTableViewCell.swift */; };
@@ -97,7 +99,9 @@
 		E72E44FC2726F59100336734 /* RouteImagesTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RouteImagesTableViewCell.swift; sourceTree = "<group>"; };
 		E72E44FE2728446800336734 /* CameraViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraViewController.swift; sourceTree = "<group>"; };
 		E72E45002728457100336734 /* PicturePreviewViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PicturePreviewViewController.swift; sourceTree = "<group>"; };
-		E7396E5A2740C5C00052808B /* CreateAnimationTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateAnimationTableViewCell.swift; sourceTree = "<group>"; };
+		E7396E5A2740C5C00052808B /* CreateAnimationAnimatedMapTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateAnimationAnimatedMapTableViewCell.swift; sourceTree = "<group>"; };
+		E7396E5D27425E1C0052808B /* CreateAnimationSelectionTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateAnimationSelectionTableViewCell.swift; sourceTree = "<group>"; };
+		E7396E5F27425E510052808B /* CreateAnimationShareActionTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateAnimationShareActionTableViewCell.swift; sourceTree = "<group>"; };
 		E7534055273B81E500323977 /* TagAndImagesTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagAndImagesTableViewCell.swift; sourceTree = "<group>"; };
 		E76B7CF42715B5EE00A8513F /* CreateRouteInfoTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateRouteInfoTableViewCell.swift; sourceTree = "<group>"; };
 		E76B7CF62715B61D00A8513F /* CreateRouteTagsTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateRouteTagsTableViewCell.swift; sourceTree = "<group>"; };
@@ -204,7 +208,9 @@
 		E7396E5C274217D40052808B /* CreateAnimation */ = {
 			isa = PBXGroup;
 			children = (
-				E7396E5A2740C5C00052808B /* CreateAnimationTableViewCell.swift */,
+				E7396E5A2740C5C00052808B /* CreateAnimationAnimatedMapTableViewCell.swift */,
+				E7396E5D27425E1C0052808B /* CreateAnimationSelectionTableViewCell.swift */,
+				E7396E5F27425E510052808B /* CreateAnimationShareActionTableViewCell.swift */,
 			);
 			path = CreateAnimation;
 			sourceTree = "<group>";
@@ -573,6 +579,7 @@
 				E785E68127058AAC00A6ED99 /* ProfileTabsCollectionReusableView.swift in Sources */,
 				E72E44F72725936500336734 /* HorizontalImageSliderCollectionViewCell.swift in Sources */,
 				E785E690270876A400A6ED99 /* UserNotification.swift in Sources */,
+				E7396E6027425E510052808B /* CreateAnimationShareActionTableViewCell.swift in Sources */,
 				E791281226FDF9E10058837F /* SearchAndListUsersViewController.swift in Sources */,
 				E76B7D03271825BA00A8513F /* TagPeopleViewController.swift in Sources */,
 				E791281426FDFA2F0058837F /* SearchAndListRoutesViewController.swift in Sources */,
@@ -617,6 +624,7 @@
 				E785E68C2708704500A6ED99 /* NotificationFollowEventTableViewCell.swift in Sources */,
 				E785E69C270DC63600A6ED99 /* CityAndNameTableViewCell.swift in Sources */,
 				E7534056273B81E500323977 /* TagAndImagesTableViewCell.swift in Sources */,
+				E7396E5E27425E1C0052808B /* CreateAnimationSelectionTableViewCell.swift in Sources */,
 				E72E44FF2728446800336734 /* CameraViewController.swift in Sources */,
 				E791281026FDF7530058837F /* MetricsViewController.swift in Sources */,
 				E7CE22BC27342207004D4520 /* AnimationSelectionTableViewCell.swift in Sources */,
@@ -626,7 +634,7 @@
 				E79127F326FDF09E0058837F /* HomeViewController.swift in Sources */,
 				E791280826FDF53F0058837F /* SettingsViewController.swift in Sources */,
 				E785E67D27058A4900A6ED99 /* RouteCollectionViewCell.swift in Sources */,
-				E7396E5B2740C5C00052808B /* CreateAnimationTableViewCell.swift in Sources */,
+				E7396E5B2740C5C00052808B /* CreateAnimationAnimatedMapTableViewCell.swift in Sources */,
 				E76B7CF52715B5EE00A8513F /* CreateRouteInfoTableViewCell.swift in Sources */,
 				E76B7CF92715B65C00A8513F /* CreateRouteImagesTableViewCell.swift in Sources */,
 			);
