@@ -25,7 +25,9 @@ class CreateAnimationViewController: UIViewController {
     public var route = [CLLocationCoordinate2D]()
     public var locations = [CLLocation]()
     public var totalCount = 0.0
-    
+    public var durationSwitchStatus = false
+    public var distanceSwitchStatus = false
+    public var elevationGraphSwitchStatus = false
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
@@ -75,7 +77,7 @@ extension CreateAnimationViewController: UITableViewDelegate, UITableViewDataSou
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if indexPath.section == 0{
             let cell = tableView.dequeueReusableCell(withIdentifier: CreateAnimationAnimatedMapTableViewCell.identifier) as! CreateAnimationAnimatedMapTableViewCell
-            cell.configure(images: images, route: route, locations: locations)
+            cell.configure(images: images, route: route, locations: locations, durationStatus: durationSwitchStatus, distanceStatus: distanceSwitchStatus, elevationGraphStatus: elevationGraphSwitchStatus )
             return cell
         }else if indexPath.section == 1{
             let cell = tableView.dequeueReusableCell(withIdentifier: CreateAnimationSelectionTableViewCell.identifier) as! CreateAnimationSelectionTableViewCell
@@ -118,15 +120,21 @@ extension CreateAnimationViewController: CreateAnimationShareActionTableViewCell
 
 extension CreateAnimationViewController: CreateAnimationSelectionTableViewCellDelegate{
     func elevationState(state: Bool) {
-        print("elevation")
+      elevationGraphSwitchStatus = state
+      let cell = cretaAnimationTableView.dequeueReusableCell(withIdentifier: CreateAnimationAnimatedMapTableViewCell.identifier) as! CreateAnimationAnimatedMapTableViewCell
+      cell.configure(images: images, route: route, locations: locations, durationStatus: durationSwitchStatus, distanceStatus: distanceSwitchStatus, elevationGraphStatus: elevationGraphSwitchStatus )
     }
     
     func durationState(state: Bool) {
-        print("duration")
+      durationSwitchStatus = state
+      let cell = cretaAnimationTableView.dequeueReusableCell(withIdentifier: CreateAnimationAnimatedMapTableViewCell.identifier) as! CreateAnimationAnimatedMapTableViewCell
+      cell.configure(images: images, route: route, locations: locations, durationStatus: durationSwitchStatus, distanceStatus: distanceSwitchStatus, elevationGraphStatus: elevationGraphSwitchStatus )
     }
     
     func distanceState(state: Bool) {
-        print("distance")
+      distanceSwitchStatus = state
+      let cell = cretaAnimationTableView.dequeueReusableCell(withIdentifier: CreateAnimationAnimatedMapTableViewCell.identifier) as! CreateAnimationAnimatedMapTableViewCell
+      cell.configure(images: images, route: route, locations: locations, durationStatus: durationSwitchStatus, distanceStatus: distanceSwitchStatus, elevationGraphStatus: elevationGraphSwitchStatus )
     }
     
     

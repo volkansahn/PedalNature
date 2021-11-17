@@ -109,9 +109,8 @@ class TagAndImagesTableViewCell: UITableViewCell {
     
     override func layoutSubviews() {
         super.layoutSubviews()
-        let goToViewHeights = 25
+        let goToViewHeights = 30
         let padding = (Int(contentView.height) - (3*goToViewHeights))/4
-        
         actionContainerView.frame = CGRect(x: contentView.left + 20.0,
                                            y: contentView.top + CGFloat(padding),
                                            width: contentView.width - 40.0,
@@ -124,7 +123,7 @@ class TagAndImagesTableViewCell: UITableViewCell {
                                  width: Int(actionContainerView.width/2.0) - 20,
                                  height: goToViewHeights)
         
-        goToTagSearchButton.frame = CGRect(x: Int(actionContainerView.width)-20,
+        goToTagSearchButton.frame = CGRect(x: Int(actionContainerView.width)-40,
                                            y: Int(actionContainerView.top),
                                            width: goToViewHeights,
                                            height: goToViewHeights)
@@ -134,7 +133,7 @@ class TagAndImagesTableViewCell: UITableViewCell {
                                    width: Int(actionContainerView.width/2.0) - 20,
                                    height: goToViewHeights)
         
-        goToRouteImageButton.frame = CGRect(x: Int(actionContainerView.width)-20,
+        goToRouteImageButton.frame = CGRect(x: Int(actionContainerView.width)-40,
                                             y: Int(goToTagSearchButton.bottom) + padding,
                                             width: goToViewHeights,
                                             height: goToViewHeights)
@@ -144,10 +143,11 @@ class TagAndImagesTableViewCell: UITableViewCell {
                                  width: Int(actionContainerView.width/2.0) - 20,
                                  height: goToViewHeights)
         
-        goToInfoButton.frame = CGRect(x: Int(actionContainerView.width)-20,
-                                      y: Int(goToRouteImageButton.bottom) + padding,
-                                      width: goToViewHeights,
-                                      height: goToViewHeights)
+        goToInfoButton.frame =  CGRect(x: Int(actionContainerView.width)-40,
+                                       y: Int(goToRouteImageButton.bottom) + padding,
+                                       width: goToViewHeights,
+                                       height: goToViewHeights)
+
     }
     
     

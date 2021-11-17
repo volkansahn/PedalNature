@@ -4,7 +4,6 @@
 //
 //  Created by Volkan on 14.11.2021.
 //
-
 import UIKit
 import MapKit
 import CoreLocation
@@ -107,7 +106,52 @@ class CreateAnimationAnimatedMapTableViewCell: UITableViewCell {
     //Show Video
     var avPlayer: AVPlayer!
     let avPlayerController = AVPlayerViewController()
+  
+    lazy var second = counter%60
+    lazy var minutes = counter/60
+    lazy var hours = counter/3600
     
+    var isDurationEnabled = false {
+      didSet {
+          if isDurationEnabled{
+              DispatchQueue.main.async {
+                  self.durationIndicatorLabel.isHidden = false
+                  self.durationIndicatorLabel.text = String(format: "%02d:%02d:%02d", self.hours, self.minutes, self.second)
+              }
+          }else{
+              DispatchQueue.main.async {
+                  self.durationIndicatorLabel.isHidden = true
+              }
+          }
+      }
+    }
+    var isDistanceEnabled = false {
+      didSet {
+          if isDistanceEnabled{
+              DispatchQueue.main.async {
+                  self.distanceIndicatorLabel.isHidden = false
+              }
+          }else{
+              DispatchQueue.main.async {
+                  self.distanceIndicatorLabel.isHidden = true
+              }
+          }
+      }
+    }
+    var isElevationGraphEnabled = false {
+      didSet {
+          if isElevationGraphEnabled{
+              DispatchQueue.main.async {
+                  self.elevationChartView.isHidden = false
+              }
+          }else{
+              DispatchQueue.main.async {
+                  self.elevationChartView.isHidden = true
+              }
+          }
+               
+      }
+    }
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?){
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         contentView.backgroundColor = .systemBackground
@@ -119,6 +163,7 @@ class CreateAnimationAnimatedMapTableViewCell: UITableViewCell {
         contentView.addSubview(durationIndicatorLabel)
         contentView.addSubview(distanceIndicatorLabel)
         contentView.addSubview(showLabel)
+        
         animatedMapView.isHidden = false
         routeImageView.isHidden = true
         avPlayerController.view.isHidden = true
@@ -165,11 +210,10 @@ class CreateAnimationAnimatedMapTableViewCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
-    public func configure(images: [RouteImage],  route : [CLLocationCoordinate2D], locations : [CLLocation]){
+    public func configure(images: [RouteImage],  route : [CLLocationCoordinate2D], locations : [CLLocation], durationStatus: Bool, distanceStatus: Bool, elevationGraphStatus: Bool){
         routeCoordinate = route
         routeLocations = locations
         routeImages = images
-        
         //Max Elevation and Speed
         maxEleLocationCoordinate = routeLocations.first!.coordinate
         maxSpeedLocationCoordinate = routeLocations.first!.coordinate
@@ -182,6 +226,11 @@ class CreateAnimationAnimatedMapTableViewCell: UITableViewCell {
         //Animation
         routeAnimate(duration: duration)
         center(onRoute: routeCoordinate, fromDistance: 10)
+
+        isDistanceEnabled = distanceStatus
+        isDurationEnabled = durationStatus
+        isElevationGraphEnabled = elevationGraphStatus
+    
     }
     
     override func prepareForReuse() {
@@ -318,9 +367,9 @@ private extension CreateAnimationAnimatedMapTableViewCell {
     @objc func animate(){
         //Duration
         counter = counter + Int((totalCount/duration)*(duration/Double(routeCoordinate.count)))
-        let second = counter%60
-        let minutes = counter/60
-        let hours = counter/3600
+        second = counter%60
+        minutes = counter/60
+        hours = counter/3600
         
         durationIndicatorLabel.text = String(format: "%02d:%02d:%02d", hours, minutes, second)
         

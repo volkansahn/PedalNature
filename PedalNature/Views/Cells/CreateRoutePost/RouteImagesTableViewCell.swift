@@ -4,7 +4,6 @@
 //
 //  Created by Volkan on 25.10.2021.
 //
-
 import UIKit
 import CoreLocation
 import MapKit
@@ -121,11 +120,11 @@ final class RouteImagesTableViewCell: UITableViewCell {
         super.layoutSubviews()
         let buttonWidth = 100
         let buttonHeight = 52
-        routeImageView.frame = CGRect(x: 0,
+        routeImageView.frame = CGRect(x: 10,
                                       y: 0,
-                                      width: contentView.width,
+                                      width: contentView.width-20,
                                       height: contentView.height - CGFloat(buttonHeight) - 10)
-        routeImageView.layer.cornerRadius = 8.0
+        routeImageView.layer.cornerRadius = 16.0
         avPlayerController.view.frame = routeImageView.frame
         avPlayerController.view.layer.cornerRadius = 8.0
         let mapContainerHeight = 75
@@ -135,13 +134,13 @@ final class RouteImagesTableViewCell: UITableViewCell {
                                         y: Int(routeImageView.bottom) - mapContainerHeight-40,
                                         width: mapContainerWidth,
                                         height: mapContainerHeight)
-        mapContainerView.layer.cornerRadius = 8.0
+        mapContainerView.layer.cornerRadius = 16.0
         
-        mapView.frame = CGRect(x: Int(mapContainerView.left) + 2,
-                               y: Int(mapContainerView.top) + 2,
-                               width: mapContainerWidth-4,
-                               height: mapContainerHeight-4)
-        
+        mapView.frame = CGRect(x: Int(routeImageView.width)-mapContainerWidth-20,
+                               y: Int(routeImageView.bottom) - mapContainerHeight-40,
+                               width: mapContainerWidth,
+                               height: mapContainerHeight)
+        mapView.layer.cornerRadius = 16.0
         
         useNotUseImageButton.frame = CGRect(x: contentView.width/2 - CGFloat(buttonWidth/2),
                                             y: CGFloat(routeImageView.bottom + 10),
