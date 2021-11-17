@@ -101,6 +101,7 @@ class CreateAnimationAnimatedMapTableViewCell: UITableViewCell {
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
         imageView.translatesAutoresizingMaskIntoConstraints = true
+        imageView.alpha = 0.0
         return imageView
     }()
     //Show Video
@@ -112,19 +113,19 @@ class CreateAnimationAnimatedMapTableViewCell: UITableViewCell {
         contentView.backgroundColor = .systemBackground
         //Animations
         contentView.addSubview(animatedMapView)
-        animatedMapView.addSubview(avPlayerController.view)
-        animatedMapView.addSubview(routeImageView)
+        contentView.addSubview(avPlayerController.view)
+        contentView.addSubview(routeImageView)
         contentView.addSubview(elevationChartView)
         contentView.addSubview(durationIndicatorLabel)
         contentView.addSubview(distanceIndicatorLabel)
-        
+        contentView.addSubview(showLabel)
         animatedMapView.isHidden = false
         routeImageView.isHidden = true
         avPlayerController.view.isHidden = true
         
         //MapView
         animatedMapView.delegate = self
-        
+        animatedMapView.alpha = 1.0
     }
     
     override func layoutSubviews() {
@@ -139,6 +140,8 @@ class CreateAnimationAnimatedMapTableViewCell: UITableViewCell {
         avPlayerController.view.frame = animatedMapView.bounds
         routeImageView.layer.cornerRadius = 8.0
         avPlayerController.view.layer.cornerRadius = 8.0
+        
+        showLabel.center = animatedMapView.center
         let labelWidth = 80
         let labelHeight = 52
         elevationChartView.frame = CGRect(x: Int(animatedMapView.left) + 5,
@@ -418,23 +421,22 @@ private extension CreateAnimationAnimatedMapTableViewCell {
                     })
                 }
             }else if self.annotations[index].title == "Image"{
+                routeImageView.isHidden = false
+                animatedMapView.isHidden = true
+                routeImageView.bringSubviewToFront(animatedMapView)
                 for image in self.routeImages{
                     if image.coordinate == curentCoord{
                         showImage = image.image!
+                        routeImageView.image = self.showImage
+
                     }
                 }
-                DispatchQueue.main.async {
-                    UIView.animate(withDuration: 2.0,
-                                   delay: 0.0,
-                                   options: [],
-                                   animations: {
-                        self.animatedMapView.isHidden = true
-                        self.animatedMapView.isHidden = false
-                        self.routeImageView.image = self.showImage
-                        
-                    }, completion: nil)
+                
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2.00) {
+                   /*Do something after 2.00 seconds have passed*/
+                    self.routeImageView.isHidden = true
                     self.animatedMapView.isHidden = false
-                    self.animatedMapView.isHidden = true
+                    self.animatedMapView.bringSubviewToFront(self.routeImageView)
                     self.routeAnimate(duration: self.duration)
                 }
             }else if self.annotations[index].title == "Video"{
