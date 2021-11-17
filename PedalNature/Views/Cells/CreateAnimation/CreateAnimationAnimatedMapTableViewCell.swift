@@ -16,7 +16,7 @@ class CreateAnimationAnimatedMapTableViewCell: UITableViewCell {
     // MARK: Variable Decleration
     
     static let identifier = "CreateAnimationAnimatedMapTableViewCell"
-        
+    
     private var animatedMapView = MKMapView()
     private var drawingTimer: Timer?
     private var polyline: MKPolyline?
@@ -45,7 +45,7 @@ class CreateAnimationAnimatedMapTableViewCell: UITableViewCell {
                              height: 150)
         return label
     }()
-        
+    
     public var duration = 10.0
     var currentStep = 1
     private var timer = Timer()
@@ -53,6 +53,7 @@ class CreateAnimationAnimatedMapTableViewCell: UITableViewCell {
     var totalCount = 0.0
     public var durationTimer : String?
     public var isFinished = false
+    var showImage = UIImage()
     
     private let elevationChartView : LineChartView = {
         let lineChartView = LineChartView()
@@ -79,27 +80,27 @@ class CreateAnimationAnimatedMapTableViewCell: UITableViewCell {
     public var ElevationEntries = [ChartDataEntry]()
     
     private let durationIndicatorLabel : UILabel = {
-           let label = UILabel()
-           label.textColor = .label
-           label.text = "Duration"
-           label.isHidden = true
-           return label
-       }()
-       
-       private let distanceIndicatorLabel : UILabel = {
-           let label = UILabel()
-           label.textColor = .label
-           label.text = "Distance"
-           label.isHidden = true
-           return label
-       }()
+        let label = UILabel()
+        label.textColor = .label
+        label.text = "Duration"
+        label.isHidden = true
+        return label
+    }()
+    
+    private let distanceIndicatorLabel : UILabel = {
+        let label = UILabel()
+        label.textColor = .label
+        label.text = "Distance"
+        label.isHidden = true
+        return label
+    }()
     
     //Show Picture
     private let routeImageView : UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
-        imageView.backgroundColor = nil
+        imageView.translatesAutoresizingMaskIntoConstraints = true
         return imageView
     }()
     //Show Video
@@ -110,9 +111,9 @@ class CreateAnimationAnimatedMapTableViewCell: UITableViewCell {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         contentView.backgroundColor = .systemBackground
         //Animations
-        contentView.addSubview(routeImageView)
         contentView.addSubview(animatedMapView)
-        contentView.addSubview(avPlayerController.view)
+        animatedMapView.addSubview(avPlayerController.view)
+        animatedMapView.addSubview(routeImageView)
         contentView.addSubview(elevationChartView)
         contentView.addSubview(durationIndicatorLabel)
         contentView.addSubview(distanceIndicatorLabel)
@@ -124,33 +125,20 @@ class CreateAnimationAnimatedMapTableViewCell: UITableViewCell {
         //MapView
         animatedMapView.delegate = self
         
-        //Max Elevation and Speed
-        maxEleLocationCoordinate = routeLocations.first!.coordinate
-        maxSpeedLocationCoordinate = routeLocations.first!.coordinate
-        
-        findMaxEleAndSpeedCoordinates(locations : routeLocations)
-        
-        //Create Annotation
-        createAnnotations(locationCoordinates : routeCoordinate, images : routeImages)
-        
-        //Animation
-        routeAnimate(duration: duration)
-        center(onRoute: routeCoordinate, fromDistance: 10)
-
-        
     }
     
     override func layoutSubviews() {
         super.layoutSubviews()
         
-        animatedMapView.frame = CGRect(x: 10,
-                                      y: 10,
-                                      width: contentView.width - 20,
-                                      height: contentView.height)
-        
+        animatedMapView.frame = CGRect(x: 20,
+                                       y: 10,
+                                       width: contentView.width - 40,
+                                       height: contentView.height)
+        animatedMapView.layer.cornerRadius = 8.0
         routeImageView.frame = animatedMapView.bounds
         avPlayerController.view.frame = animatedMapView.bounds
-        
+        routeImageView.layer.cornerRadius = 8.0
+        avPlayerController.view.layer.cornerRadius = 8.0
         let labelWidth = 80
         let labelHeight = 52
         elevationChartView.frame = CGRect(x: Int(animatedMapView.left) + 5,
@@ -178,6 +166,19 @@ class CreateAnimationAnimatedMapTableViewCell: UITableViewCell {
         routeCoordinate = route
         routeLocations = locations
         routeImages = images
+        
+        //Max Elevation and Speed
+        maxEleLocationCoordinate = routeLocations.first!.coordinate
+        maxSpeedLocationCoordinate = routeLocations.first!.coordinate
+        
+        findMaxEleAndSpeedCoordinates(locations : routeLocations)
+        
+        //Create Annotation
+        createAnnotations(locationCoordinates : routeCoordinate, images : routeImages)
+        
+        //Animation
+        routeAnimate(duration: duration)
+        center(onRoute: routeCoordinate, fromDistance: 10)
     }
     
     override func prepareForReuse() {
@@ -240,13 +241,12 @@ class CreateAnimationAnimatedMapTableViewCell: UITableViewCell {
         
         // play video
         avPlayerController.player?.play()
-                
+        
         avPlayerController.exitsFullScreenWhenPlaybackEnds = true
         
     }
     
     
-
 }
 
 extension CreateAnimationAnimatedMapTableViewCell: MKMapViewDelegate {
@@ -318,7 +318,7 @@ private extension CreateAnimationAnimatedMapTableViewCell {
         let second = counter%60
         let minutes = counter/60
         let hours = counter/3600
-
+        
         durationIndicatorLabel.text = String(format: "%02d:%02d:%02d", hours, minutes, second)
         
         animatedMapView.setCamera(MKMapCamera(lookingAtCenter: routeCoordinate[currentStep-1], fromDistance: 200, pitch: 0, heading: 0), animated: true)
@@ -419,28 +419,23 @@ private extension CreateAnimationAnimatedMapTableViewCell {
                 }
             }else if self.annotations[index].title == "Image"{
                 for image in self.routeImages{
-                  if image.coordinate == curentCoord{
-                      
-                      self.animatedMapView.isHidden = true
-                      self.routeImageView.isHidden = false
-                      self.routeImageView.image = image.image
-                      
-                  }
+                    if image.coordinate == curentCoord{
+                        showImage = image.image!
+                    }
                 }
                 DispatchQueue.main.async {
                     UIView.animate(withDuration: 2.0,
                                    delay: 0.0,
                                    options: [],
                                    animations: {
+                        self.animatedMapView.isHidden = true
+                        self.animatedMapView.isHidden = false
+                        self.routeImageView.image = self.showImage
                         
-                      
-                    }, completion: { finished in
-                        if finished{
-                            self.animatedMapView.isHidden = false
-                            self.routeImageView.isHidden = true
-                            self.routeAnimate(duration: self.duration)
-                        }
-                    })
+                    }, completion: nil)
+                    self.animatedMapView.isHidden = false
+                    self.animatedMapView.isHidden = true
+                    self.routeAnimate(duration: self.duration)
                 }
             }else if self.annotations[index].title == "Video"{
                 DispatchQueue.main.async {
@@ -449,13 +444,13 @@ private extension CreateAnimationAnimatedMapTableViewCell {
                                    options: [],
                                    animations: {
                         for image in self.routeImages{
-                          if image.coordinate == curentCoord{
-                            self.animatedMapView.isHidden = true
-                            self.avPlayerController.view.isHidden = true
-                            self.preparePlayer(with: image.videoURL!)
-                          }
+                            if image.coordinate == curentCoord{
+                                self.animatedMapView.isHidden = true
+                                self.avPlayerController.view.isHidden = true
+                                self.preparePlayer(with: image.videoURL!)
+                            }
                         }
-                      
+                        
                     }, completion: { finished in
                         if finished{
                             self.animatedMapView.isHidden = false
@@ -499,4 +494,8 @@ private extension CreateAnimationAnimatedMapTableViewCell {
         currentStep += 1
     }
     
+    @objc func showTheImage(){
+        
+        
+    }
 }

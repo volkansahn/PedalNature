@@ -7,11 +7,19 @@
 
 import UIKit
 
-class CreateAnimationSelectionTableViewCell: UITableViewCell {
+protocol CreateAnimationSelectionTableViewCellDelegate: AnyObject{
+    func elevationState(state: Bool)
+    func durationState(state: Bool)
+    func distanceState(state: Bool)
+}
+
+final class CreateAnimationSelectionTableViewCell: UITableViewCell {
     
     // MARK: Variable Decleration
     
     static let identifier = "CreateAnimationSelectionTableViewCell"
+    
+    public var delegate: CreateAnimationSelectionTableViewCellDelegate?
     
     private let actionContainerView : UIView = {
         let view = UIView()
@@ -22,7 +30,7 @@ class CreateAnimationSelectionTableViewCell: UITableViewCell {
     private let elevationSelectionLabel : UILabel = {
         let label = UILabel()
         label.text = "Elevation"
-        label.font = .systemFont(ofSize: 14, weight: .bold)
+        label.font = .systemFont(ofSize: 17, weight: .bold)
         label.textColor = .label
         return label
     }()
@@ -35,7 +43,7 @@ class CreateAnimationSelectionTableViewCell: UITableViewCell {
     private let durationSelectionLabel : UILabel = {
         let label = UILabel()
         label.text = "Duration"
-        label.font = .systemFont(ofSize: 14, weight: .bold)
+        label.font = .systemFont(ofSize: 17, weight: .bold)
         label.textColor = .label
         return label
     }()
@@ -48,7 +56,7 @@ class CreateAnimationSelectionTableViewCell: UITableViewCell {
     private let distanceSelectionLabel : UILabel = {
         let label = UILabel()
         label.text = "Distance"
-        label.font = .systemFont(ofSize: 14, weight: .bold)
+        label.font = .systemFont(ofSize: 17, weight: .bold)
         label.textColor = .label
         return label
     }()
@@ -63,8 +71,32 @@ class CreateAnimationSelectionTableViewCell: UITableViewCell {
         contentView.backgroundColor = .systemBackground
         //Selection Container
         contentView.addSubview(actionContainerView)
-        //For İmages
+        //For selections
+        contentView.addSubview(elevationSelectionLabel)
+        contentView.addSubview(elevationSelectionSwitch)
+        contentView.addSubview(durationSelectionLabel)
+        contentView.addSubview(durationSelectionSwitch)
+        contentView.addSubview(distanceSelectionLabel)
+        contentView.addSubview(distanceSelectionSwitch)
+        elevationSelectionSwitch.addTarget(self, action: #selector(elevationStateChange(_:)), for: .valueChanged)
+        durationSelectionSwitch.addTarget(self, action: #selector(durationStateChange(_:)), for: .valueChanged)
+        distanceSelectionSwitch.addTarget(self, action: #selector(distanceStateChange(_:)), for: .valueChanged)
         
+    }
+    
+    @objc func elevationStateChange(_ sender:UISwitch){
+        let state = sender.isOn
+        delegate?.elevationState(state: state)
+    }
+    
+    @objc func durationStateChange(_ sender:UISwitch){
+        let state = sender.isOn
+        delegate?.durationState(state: state)
+    }
+    
+    @objc func distanceStateChange(_ sender:UISwitch){
+        let state = sender.isOn
+        delegate?.distanceState(state: state)
     }
     
     override func layoutSubviews() {
@@ -78,37 +110,37 @@ class CreateAnimationSelectionTableViewCell: UITableViewCell {
                                            height: contentView.height - CGFloat(2*padding))
         
         actionContainerView.layer.cornerRadius = 16.0
-        /*
-        tagsLabel.frame = CGRect(x: Int(actionContainerView.left) + 10,
+        
+        elevationSelectionLabel.frame = CGRect(x: Int(actionContainerView.left) + 10,
                                  y: Int(actionContainerView.top),
                                  width: Int(actionContainerView.width/2.0) - 20,
                                  height: goToViewHeights)
         
-        goToTagSearchButton.frame = CGRect(x: Int(actionContainerView.width)-20,
+        elevationSelectionSwitch.frame = CGRect(x: Int(actionContainerView.width)-40,
                                            y: Int(actionContainerView.top),
                                            width: goToViewHeights,
                                            height: goToViewHeights)
         
-        imagesLabel.frame = CGRect(x: Int(actionContainerView.left) + 10,
-                                   y: Int(tagsLabel.bottom) + padding,
+        durationSelectionLabel.frame = CGRect(x: Int(actionContainerView.left) + 10,
+                                   y: Int(elevationSelectionLabel.bottom) + padding,
                                    width: Int(actionContainerView.width/2.0) - 20,
                                    height: goToViewHeights)
         
-        goToRouteImageButton.frame = CGRect(x: Int(actionContainerView.width)-20,
-                                            y: Int(goToTagSearchButton.bottom) + padding,
+        durationSelectionSwitch.frame = CGRect(x: Int(actionContainerView.width)-40,
+                                            y: Int(elevationSelectionSwitch.bottom) + padding,
                                             width: goToViewHeights,
                                             height: goToViewHeights)
         
-        infoLabel.frame = CGRect(x: Int(actionContainerView.left) + 10,
-                                 y: Int(imagesLabel.bottom) + padding,
+        distanceSelectionLabel.frame = CGRect(x: Int(actionContainerView.left) + 10,
+                                 y: Int(durationSelectionLabel.bottom) + padding,
                                  width: Int(actionContainerView.width/2.0) - 20,
                                  height: goToViewHeights)
         
-        goToInfoButton.frame = CGRect(x: Int(actionContainerView.width)-20,
-                                      y: Int(goToRouteImageButton.bottom) + padding,
+        distanceSelectionSwitch.frame = CGRect(x: Int(actionContainerView.width)-40,
+                                      y: Int(durationSelectionSwitch.bottom) + padding,
                                       width: goToViewHeights,
                                       height: goToViewHeights)
-        */
+        
     }
     
     

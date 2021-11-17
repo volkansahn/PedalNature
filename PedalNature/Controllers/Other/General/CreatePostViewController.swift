@@ -62,6 +62,7 @@ final class CreatePostViewController: UIViewController {
         createRouteTableView.dataSource = self
         
         //Cancel Route
+        self.tabBarController?.tabBar.isHidden = true
         self.navigationItem.setHidesBackButton(true, animated: true)
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Don't Save", style: .plain, target: self, action: #selector(cancelTapped))
         

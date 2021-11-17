@@ -37,76 +37,13 @@ class CreateAnimationViewController: UIViewController {
         self.tabBarController?.tabBar.isHidden = true
         self.navigationItem.setHidesBackButton(true, animated: true)
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Don't Share", style: .plain, target: self, action: #selector(cancelTapped))
-        //view.addSubview(animatedMapView)
-        
-/*
-        avPlayerController.view.isHidden = true
-        animationSelectionTableView.delegate = self
-        animationSelectionTableView.dataSource = self
-        center(onRoute: route, fromDistance: 10)
-        //MapView
-        animatedMapView.delegate = self
-        //animatedMapView.translatesAutoresizingMaskIntoConstraints = false
-        
-        //Animation
-        routeAnimate(duration: duration)
-        
-        //Max Elevation and Speed
-        maxEleLocationCoordinate = locations.first!.coordinate
-        maxSpeedLocationCoordinate = locations.first!.coordinate
-        
-        
-        findMaxEleAndSpeedCoordinates(locations : locations)
-        
-        
-        //Create Annotation
-        createAnnotations(locationCoordinates : route, images : images)
-        
-
- */
     }
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         cretaAnimationTableView.frame = CGRect(x: 0, y: view.safeAreaInsets.top, width: view.width, height: view.height - 49)
-        /*
-        animatedMapView.frame = CGRect(x: 20.0,
-                                       y: view.safeAreaInsets.top + 20,
-                                       width: view.width - 40.0,
-                                       height: view.width - 40.0)
         
-        routeImageView.frame = CGRect(x: 20.0,
-                                      y: view.safeAreaInsets.top + 20,
-                                      width: view.width - 40.0,
-                                      height: view.width - 40.0)
-        avPlayerController.view.frame = animatedMapView.bounds
-        showLabel.center = animatedMapView.center
-        let ContainerViewHeight = 320.0
-        let tableViewHeight = 200.0
-        containerView.frame = CGRect(x: 0,
-                                     y: animatedMapView.bottom + 20.0,
-                                     width: view.width,
-                                     height: ContainerViewHeight)
-        
-        shareButton.frame = CGRect(x: view.width/2.0 - buttonWidth/2.0,
-                                   y: containerView.bottom - 20.0 - buttonHeight,
-                                   width: buttonWidth,
-                                   height: buttonHeight)
-        
-        actionContainerView.frame = CGRect(x: containerView.left + 20.0,
-                                           y: containerView.top + 20.0,
-                                           width: containerView.width - 40.0,
-                                           height: tableViewHeight)
-        actionContainerView.layer.cornerRadius = 16.0
-        
-        animationSelectionTableView.frame = CGRect(x: actionContainerView.left + 10.0,
-                                                   y: actionContainerView.top,
-                                                   width: actionContainerView.width - 20.0,
-                                                   height: tableViewHeight)
-        
-    */
     }
-    
     
     //Cancel Save
     @objc func cancelTapped(){
@@ -142,9 +79,11 @@ extension CreateAnimationViewController: UITableViewDelegate, UITableViewDataSou
             return cell
         }else if indexPath.section == 1{
             let cell = tableView.dequeueReusableCell(withIdentifier: CreateAnimationSelectionTableViewCell.identifier) as! CreateAnimationSelectionTableViewCell
+            cell.delegate = self
             return cell
         }else {
             let cell = tableView.dequeueReusableCell(withIdentifier: CreateAnimationShareActionTableViewCell.identifier) as! CreateAnimationShareActionTableViewCell
+            cell.delegate = self
             return cell
         }
         
@@ -164,5 +103,31 @@ extension CreateAnimationViewController: UITableViewDelegate, UITableViewDataSou
         }
         
     }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: false)
+    }
+    
+}
+
+extension CreateAnimationViewController: CreateAnimationShareActionTableViewCellDelegate{
+    func shareButonPressed() {
+        print("Share Pressed")
+    }
+}
+
+extension CreateAnimationViewController: CreateAnimationSelectionTableViewCellDelegate{
+    func elevationState(state: Bool) {
+        print("elevation")
+    }
+    
+    func durationState(state: Bool) {
+        print("duration")
+    }
+    
+    func distanceState(state: Bool) {
+        print("distance")
+    }
+    
     
 }

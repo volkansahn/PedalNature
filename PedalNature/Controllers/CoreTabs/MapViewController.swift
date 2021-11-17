@@ -639,7 +639,6 @@ extension MapViewController: UIImagePickerControllerDelegate, UINavigationContro
             ac.addAction(UIAlertAction(title: "OK", style: .default))
             present(ac, animated: true)
         }
-    playPressed()
     }
 
     func requestAuthorization(completion: @escaping ()->Void) {

@@ -61,7 +61,7 @@ final class RouteImagesTableViewCell: UITableViewCell {
     
     var avPlayer: AVPlayer!
     let avPlayerController = AVPlayerViewController()
-
+    
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?){
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         mapView.delegate = self
@@ -87,8 +87,8 @@ final class RouteImagesTableViewCell: UITableViewCell {
         // play video
         avPlayerController.player?.play()
         
-
-
+        
+        
     }
     
     @objc func useNotUseImageButtonPressed(){
@@ -125,21 +125,23 @@ final class RouteImagesTableViewCell: UITableViewCell {
                                       y: 0,
                                       width: contentView.width,
                                       height: contentView.height - CGFloat(buttonHeight) - 10)
+        routeImageView.layer.cornerRadius = 8.0
         avPlayerController.view.frame = routeImageView.frame
+        avPlayerController.view.layer.cornerRadius = 8.0
+        let mapContainerHeight = 75
+        let mapContainerWidth = 150
         
-         let mapContainerHeight = 75
-         let mapContainerWidth = 150
-         
         mapContainerView.frame = CGRect(x: Int(routeImageView.width)-mapContainerWidth-20,
                                         y: Int(routeImageView.bottom) - mapContainerHeight-40,
                                         width: mapContainerWidth,
                                         height: mapContainerHeight)
+        mapContainerView.layer.cornerRadius = 8.0
         
         mapView.frame = CGRect(x: Int(mapContainerView.left) + 2,
                                y: Int(mapContainerView.top) + 2,
                                width: mapContainerWidth-4,
                                height: mapContainerHeight-4)
-         
+        
         
         useNotUseImageButton.frame = CGRect(x: contentView.width/2 - CGFloat(buttonWidth/2),
                                             y: CGFloat(routeImageView.bottom + 10),
@@ -178,7 +180,7 @@ final class RouteImagesTableViewCell: UITableViewCell {
         let delta: CLLocationDistance = startLocation.distance(from: endLocation)
         let regionRadius : CLLocationDistance = 1000
         let currentSegment = MKPolyline(coordinates: coordinates, count: coordinates.count)
-
+        
         let coordinateRegion = MKCoordinateRegion(
             center: image.coordinate,
             latitudinalMeters: regionRadius,
@@ -186,7 +188,7 @@ final class RouteImagesTableViewCell: UITableViewCell {
         
         mapView.setRegion(coordinateRegion, animated: true)
         mapView.addOverlay(currentSegment)
-
+        
         addAnnotations(image : image)
         return
         

@@ -39,6 +39,7 @@ final class CreateRouteGraphsTableViewCell: UITableViewCell {
                                y: 20.0,
                                width: contentView.width - 40,
                                height: contentView.height)
+        mapView.layer.cornerRadius = 8.0
     }
     
     

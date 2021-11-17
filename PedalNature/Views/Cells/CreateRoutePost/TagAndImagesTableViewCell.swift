@@ -109,7 +109,7 @@ class TagAndImagesTableViewCell: UITableViewCell {
     
     override func layoutSubviews() {
         super.layoutSubviews()
-        let goToViewHeights = 30
+        let goToViewHeights = 25
         let padding = (Int(contentView.height) - (3*goToViewHeights))/4
         
         actionContainerView.frame = CGRect(x: contentView.left + 20.0,
